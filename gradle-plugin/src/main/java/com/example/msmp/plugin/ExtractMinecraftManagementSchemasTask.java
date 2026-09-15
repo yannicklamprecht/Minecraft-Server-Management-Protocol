@@ -136,7 +136,7 @@ public abstract class ExtractMinecraftManagementSchemasTask extends DefaultTask 
                 schemasFoundCount++;
 
                 getLogger().lifecycle("--> Extracted OpenRPC v{} schema from Minecraft {} -> {}",
-                        protocolVer, vid, targetSchemaFile);
+                        protocolVer, vid, rootDirFile.toPath().relativize(targetSchemaFile));
             } else {
                 getLogger().info("No management protocol schema generated for Minecraft {}", vid);
                 if (configuredVersions.isEmpty() && minVersion != null && minVersion.equals(vid)) {

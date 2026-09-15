@@ -2,6 +2,7 @@ package com.example.msmp.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
@@ -23,8 +24,8 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
                 MinecraftManagementExtension.class
         );
 
-        // Configure project-specific cache under <rootDir>/.gradle/caches/msmp
-        Directory projectGradleCacheDir = project.getRootProject().getLayout().getProjectDirectory().dir(".gradle/caches/msmp");
+        // Configure project-specific cache under <rootDir>/.gradle/caches/minecraft-management-gradle-plugin
+        Directory projectGradleCacheDir = project.getRootProject().getLayout().getProjectDirectory().dir(".gradle/caches/minecraft-management-gradle-plugin");
 
         extension.getOutputDir().convention(projectGradleCacheDir.dir("protocol-schemas"));
         extension.getSchemasDir().convention(extension.getOutputDir());
