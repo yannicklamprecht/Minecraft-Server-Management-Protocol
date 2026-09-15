@@ -55,6 +55,18 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
         return apiFactory.apply(this);
     }
 
+    /**
+     * Unified, version-agnostic session abstraction that automatically works across all
+     * protocol versions (1.0.0 through 3.1.0+).
+     */
+    public com.example.msmp.api.MinecraftManagementSession session() {
+        return new com.example.msmp.api.DefaultMinecraftManagementSession(this, "3.1.0");
+    }
+
+    public com.example.msmp.api.MinecraftManagementSession session(String protocolVersion) {
+        return new com.example.msmp.api.DefaultMinecraftManagementSession(this, protocolVersion);
+    }
+
     public com.example.msmp.generated.v1_0_0.MinecraftManagementApi v1_0_0() {
         return new com.example.msmp.generated.v1_0_0.MinecraftManagementApi(this);
     }

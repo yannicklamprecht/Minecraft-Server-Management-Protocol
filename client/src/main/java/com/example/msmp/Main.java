@@ -1,8 +1,6 @@
 package com.example.msmp;
 
-import com.example.msmp.generated.v3_1_0.MinecraftManagementApi;
-import com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications;
-import com.example.msmp.generated.v3_1_0.dto.Player;
+import com.example.msmp.api.MinecraftManagementSession;
 import com.example.msmp.transport.MinecraftManagementClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -24,20 +22,19 @@ public final class Main {
             client.connect().join();
             LOGGER.info("Connected to Minecraft Server Management Protocol (MSMP).");
 
-            // Direct version facade access
-            MinecraftManagementApi api = client.v3_1_0();
-            MinecraftManagementNotifications notifications = client.notificationsV3_1_0();
+            // Version-agnostic abstraction session (works across 1.0.0, 2.0.0, 3.0.0, 3.1.0)
+            MinecraftManagementSession session = client.session();
 
-            // Register notification listener
-            notifications.onPlayersJoined(player ->
+            // Register version-agnostic notification listener
+            session.onPlayerJoined(player ->
                     LOGGER.info("Player joined: {} ({})", player.name(), player.id()));
-            notifications.onServerStatus(status ->
+            session.onServerStatus(status ->
                     LOGGER.info("Server status: started={}, players={}", status.started(), status.players().size()));
 
-            // Call typed RPC methods
-            api.serverStatus().thenAccept(state -> {
+            // Call version-agnostic RPC methods
+            session.getStatus().thenAccept(state -> {
                 LOGGER.info("Server version: {}", state.version() != null ? state.version().name() : "unknown");
-                for (Player player : state.players()) {
+                for (var player : state.players()) {
                     LOGGER.info("Online player: {}", player.name());
                 }
             }).join();
