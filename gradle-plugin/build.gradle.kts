@@ -21,6 +21,7 @@ val jacksonVersion = "2.20.0"
 
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.palantir.javapoet:javapoet:0.6.0")
 }
 
 gradlePlugin {

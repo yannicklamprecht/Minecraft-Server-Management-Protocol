@@ -9,13 +9,18 @@ import javax.inject.Inject;
 
 public abstract class MinecraftManagementExtension {
     public static final String DEFAULT_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+    public static final String DEFAULT_MIN_MC_VERSION = "1.21.9";
+    public static final String DEFAULT_PACKAGE_NAME = "com.example.msmp.generated";
+    public static final String DEFAULT_CLIENT_CLASS = "com.example.msmp.transport.MinecraftManagementClient";
 
     @Inject
     public MinecraftManagementExtension(ObjectFactory objects) {
         getManifestUrl().convention(DEFAULT_MANIFEST_URL);
         getOnlyReleases().convention(true);
         getVersions().convention(objects.listProperty(String.class).empty());
-        getMinMinecraftVersion().convention("1.21.9");
+        getMinMinecraftVersion().convention(DEFAULT_MIN_MC_VERSION);
+        getPackageName().convention(DEFAULT_PACKAGE_NAME);
+        getClientClassName().convention(DEFAULT_CLIENT_CLASS);
     }
 
     public abstract Property<String> getManifestUrl();
@@ -25,4 +30,9 @@ public abstract class MinecraftManagementExtension {
     public abstract DirectoryProperty getOutputDir();
     public abstract DirectoryProperty getCacheDir();
     public abstract Property<String> getJavaExecutable();
+
+    public abstract DirectoryProperty getSchemasDir();
+    public abstract DirectoryProperty getGeneratedSourcesDir();
+    public abstract Property<String> getPackageName();
+    public abstract Property<String> getClientClassName();
 }

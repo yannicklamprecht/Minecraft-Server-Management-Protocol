@@ -19,18 +19,12 @@ java {
 val jacksonVersion = "2.20.0"
 val slf4jVersion = "2.0.17"
 val logbackVersion = "1.5.18"
+val junitVersion = "5.11.4"
 
 sourceSets {
-    create("codegen") {
-        java.srcDir("src/codegen/java")
-    }
     main {
-        java.srcDir(layout.buildDirectory.dir("generated/sources/msmp/main/java"))
+        java.srcDir("src/generated/java")
     }
-}
-
-configurations.named("codegenImplementation") {
-    extendsFrom(configurations.implementation.get())
 }
 
 dependencies {
@@ -38,32 +32,15 @@ dependencies {
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 
-    "codegenImplementation"("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-val generatedMsmpDir = layout.buildDirectory.dir("generated/sources/msmp/main/java")
-val protocolSchemasDir = rootProject.layout.projectDirectory.dir("protocol-schemas")
-
-val generateMsmpSources = tasks.register<JavaExec>("generateMsmpSources") {
-    group = "code generation"
-    description = "Generates typed Minecraft management protocol DTOs and API facades from OpenRPC schemas."
-    dependsOn(tasks.named("compileCodegenJava"))
-
-    classpath = sourceSets["codegen"].runtimeClasspath
-    mainClass.set("com.example.msmp.codegen.MsmpOpenRpcGenerator")
-
-    inputs.dir(protocolSchemasDir)
-    outputs.dir(generatedMsmpDir)
-
-    args(
-        protocolSchemasDir.asFile.absolutePath,
-        generatedMsmpDir.get().asFile.absolutePath,
-        "com.example.msmp.generated"
-    )
-}
+val generatedMsmpDir = layout.projectDirectory.dir("src/generated/java")
 
 tasks.named("compileJava") {
-    dependsOn(generateMsmpSources)
+    dependsOn(rootProject.tasks.named("generateMinecraftManagementSources"))
 }
 
 tasks.named<Delete>("clean") {

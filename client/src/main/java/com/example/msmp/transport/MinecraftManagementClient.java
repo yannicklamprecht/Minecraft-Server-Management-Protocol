@@ -47,6 +47,50 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
                 .thenAccept(ws -> this.webSocket = ws);
     }
 
+    public ObjectMapper mapper() {
+        return mapper;
+    }
+
+    public <T> T api(java.util.function.Function<MinecraftManagementClient, T> apiFactory) {
+        return apiFactory.apply(this);
+    }
+
+    public com.example.msmp.generated.v1_0_0.MinecraftManagementApi v1_0_0() {
+        return new com.example.msmp.generated.v1_0_0.MinecraftManagementApi(this);
+    }
+
+    public com.example.msmp.generated.v1_0_0.MinecraftManagementNotifications notificationsV1_0_0() {
+        return new com.example.msmp.generated.v1_0_0.MinecraftManagementNotifications(this);
+    }
+
+    public com.example.msmp.generated.v2_0_0.MinecraftManagementApi v2_0_0() {
+        return new com.example.msmp.generated.v2_0_0.MinecraftManagementApi(this);
+    }
+
+    public com.example.msmp.generated.v2_0_0.MinecraftManagementNotifications notificationsV2_0_0() {
+        return new com.example.msmp.generated.v2_0_0.MinecraftManagementNotifications(this);
+    }
+
+    public com.example.msmp.generated.v3_0_0.MinecraftManagementApi v3_0_0() {
+        return new com.example.msmp.generated.v3_0_0.MinecraftManagementApi(this);
+    }
+
+    public com.example.msmp.generated.v3_0_0.MinecraftManagementNotifications notificationsV3_0_0() {
+        return new com.example.msmp.generated.v3_0_0.MinecraftManagementNotifications(this);
+    }
+
+    public com.example.msmp.generated.v3_1_0.MinecraftManagementApi v3_1_0() {
+        return new com.example.msmp.generated.v3_1_0.MinecraftManagementApi(this);
+    }
+
+    public com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications notificationsV3_1_0() {
+        return new com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications(this);
+    }
+
+    public <R> CompletableFuture<R> call(String method, TypeReference<R> resultType) {
+        return call(method, Map.of(), resultType);
+    }
+
     public <R> CompletableFuture<R> call(String method, Object params, Class<R> resultType) {
         return call(method, params, mapper.getTypeFactory().constructType(resultType));
     }
@@ -77,8 +121,29 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
         return future;
     }
 
+    public void registerNotification(String method, Runnable listener) {
+        notifications.put(method, new NotificationRegistration<>(
+                mapper.getTypeFactory().constructType(new TypeReference<Object>() {}),
+                ignored -> listener.run()
+        ));
+    }
+
     public <T> void registerNotification(String method, TypeReference<T> type, Consumer<T> listener) {
         notifications.put(method, new NotificationRegistration<>(mapper.getTypeFactory().constructType(type), listener));
+    }
+
+    public <T> void registerNotificationProperty(String method, String propertyName, TypeReference<T> type, Consumer<T> listener) {
+        JavaType targetType = mapper.getTypeFactory().constructType(type);
+        notifications.put(method, new NotificationRegistration<>(
+                mapper.getTypeFactory().constructType(new TypeReference<Map<String, Object>>() {}),
+                params -> {
+                    if (params instanceof Map<?, ?> map) {
+                        Object propValue = map.get(propertyName);
+                        T converted = mapper.convertValue(propValue, targetType);
+                        listener.accept(converted);
+                    }
+                }
+        ));
     }
 
     @Override public void onOpen(WebSocket webSocket) { LOGGER.info("WebSocket opened"); webSocket.request(1); }
