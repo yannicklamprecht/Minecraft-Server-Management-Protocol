@@ -89,6 +89,13 @@ public final class ServerDataGenerator {
         return Optional.of(new ExtractedSchema(protocolVersion, title, schemaMap));
     }
 
+    public static ExtractedSchema loadSchemaFromFile(Path schemaFile, String fallbackVersion) throws IOException {
+        Map<String, Object> schemaMap = MAPPER.readValue(schemaFile.toFile(), new TypeReference<>() {});
+        String protocolVersion = extractProtocolVersion(schemaMap, fallbackVersion);
+        String title = extractTitle(schemaMap);
+        return new ExtractedSchema(protocolVersion, title, schemaMap);
+    }
+
     public static void writeFormattedSchema(Map<String, Object> schemaMap, Path destinationFile) throws IOException {
         Files.createDirectories(destinationFile.getParent());
         PRETTY_WRITER.writeValue(destinationFile.toFile(), schemaMap);

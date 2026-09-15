@@ -50,4 +50,14 @@ class PluginConfigurationTest {
         assertNotNull(project.getTasks().findByName("cleanMinecraftManagementSources"));
         assertNotNull(project.getTasks().findByName("cleanGeneratedSources"));
     }
+
+    @Test
+    void testLoadCachedSchema(@TempDir File tempDir) throws IOException {
+        File schemaFile = new File(tempDir, "openrpc.json");
+        java.nio.file.Files.writeString(schemaFile.toPath(), "{\"openrpc\": \"1.2.6\", \"info\": {\"version\": \"1.0.0\", \"title\": \"Test RPC\"}}");
+
+        var extracted = com.example.msmp.plugin.internal.ServerDataGenerator.loadSchemaFromFile(schemaFile.toPath(), "1.0.0");
+        assertEquals("1.0.0", extracted.protocolVersion());
+        assertEquals("Test RPC", extracted.openRpcTitle());
+    }
 }

@@ -12,6 +12,7 @@ import org.gradle.api.tasks.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -101,6 +102,38 @@ public abstract class ExtractMinecraftManagementSchemasTask extends DefaultTask 
 
             getLogger().lifecycle("[{}/{}] Checking Minecraft {} ({})", processedCount, versions.size(), vid, versionEntry.type());
 
+            Path versionCacheDir = cacheDirFile.toPath().resolve(vid);
+            Path cachedSchemaFile = versionCacheDir.resolve("openrpc.json");
+            Path noSchemaMarkerFile = versionCacheDir.resolve(".no-schema");
+
+            // Fast-path: Check if we have cached schema or known no-schema result for this Minecraft version
+            if (Files.exists(cachedSchemaFile)) {
+                try {
+                    var extracted = ServerDataGenerator.loadSchemaFromFile(cachedSchemaFile, vid);
+                    String protocolVer = extracted.protocolVersion();
+                    Path targetSchemaFile = outputDirFile.toPath().resolve(protocolVer).resolve("openrpc.json");
+
+                    if (!Files.exists(targetSchemaFile)) {
+                        ServerDataGenerator.writeFormattedSchema(extracted.schemaContent(), targetSchemaFile);
+                    }
+                    protocolToMinecraftVersions.computeIfAbsent(protocolVer, k -> new ArrayList<>()).add(vid);
+                    schemasFoundCount++;
+
+                    getLogger().lifecycle("--> Reusing cached OpenRPC v{} schema for Minecraft {} -> {}",
+                            protocolVer, vid, rootDirFile.toPath().relativize(targetSchemaFile));
+                    continue;
+                } catch (Exception e) {
+                    getLogger().warn("Failed to read cached schema for Minecraft {}: {}. Re-extracting...", vid, e.getMessage());
+                }
+            } else if (Files.exists(noSchemaMarkerFile)) {
+                getLogger().info("Using cached result for Minecraft {}: no management protocol schema", vid);
+                if (configuredVersions.isEmpty() && minVersion != null && minVersion.equalsIgnoreCase(vid)) {
+                    getLogger().lifecycle("Reached minMinecraftVersion '{}'. Stopping search for older releases.", minVersion);
+                    break;
+                }
+                continue;
+            }
+
             var serverDownloadOpt = manifestService.fetchServerDownload(versionEntry.url());
             if (serverDownloadOpt.isEmpty()) {
                 getLogger().info("No server download available for Minecraft {}", vid);
@@ -129,17 +162,27 @@ public abstract class ExtractMinecraftManagementSchemasTask extends DefaultTask 
             if (extractedSchemaOpt.isPresent()) {
                 var extracted = extractedSchemaOpt.get();
                 String protocolVer = extracted.protocolVersion();
-                Path targetSchemaFile = outputDirFile.toPath().resolve(protocolVer).resolve("openrpc.json");
 
+                // Cache the extracted schema for this Minecraft version
+                Files.createDirectories(versionCacheDir);
+                ServerDataGenerator.writeFormattedSchema(extracted.schemaContent(), cachedSchemaFile);
+
+                // Write to outputDir under protocol version
+                Path targetSchemaFile = outputDirFile.toPath().resolve(protocolVer).resolve("openrpc.json");
                 ServerDataGenerator.writeFormattedSchema(extracted.schemaContent(), targetSchemaFile);
+
                 protocolToMinecraftVersions.computeIfAbsent(protocolVer, k -> new ArrayList<>()).add(vid);
                 schemasFoundCount++;
 
                 getLogger().lifecycle("--> Extracted OpenRPC v{} schema from Minecraft {} -> {}",
                         protocolVer, vid, rootDirFile.toPath().relativize(targetSchemaFile));
             } else {
+                // Cache .no-schema marker to prevent re-running data generator on future executions
+                Files.createDirectories(versionCacheDir);
+                Files.writeString(noSchemaMarkerFile, "");
+
                 getLogger().info("No management protocol schema generated for Minecraft {}", vid);
-                if (configuredVersions.isEmpty() && minVersion != null && minVersion.equals(vid)) {
+                if (configuredVersions.isEmpty() && minVersion != null && minVersion.equalsIgnoreCase(vid)) {
                     getLogger().lifecycle("Reached minMinecraftVersion '{}'. Stopping search for older releases.", minVersion);
                     break;
                 }
