@@ -1,6 +1,7 @@
 plugins {
     java
     application
+    id("com.example.msmp.schema-extractor")
 }
 
 group = "com.example.msmp"
@@ -21,12 +22,6 @@ val slf4jVersion = "2.0.17"
 val logbackVersion = "1.5.18"
 val junitVersion = "5.11.4"
 
-sourceSets {
-    main {
-        java.srcDir("src/generated/java")
-    }
-}
-
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
@@ -37,14 +32,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-val generatedMsmpDir = layout.projectDirectory.dir("src/generated/java")
-
-tasks.named("compileJava") {
-    dependsOn(rootProject.tasks.named("generateMinecraftManagementSources"))
-}
-
-tasks.named<Delete>("clean") {
-    delete(generatedMsmpDir)
+minecraftManagement {
+    packageName.set("de.craftstuebchen.mc.management")
 }
 
 application {

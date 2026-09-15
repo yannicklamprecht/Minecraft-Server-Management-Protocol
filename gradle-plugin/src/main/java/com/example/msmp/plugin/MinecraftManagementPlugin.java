@@ -2,6 +2,14 @@ package com.example.msmp.plugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.tasks.Delete;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskProvider;
+
+import java.io.File;
 
 public class MinecraftManagementPlugin implements Plugin<Project> {
     public static final String EXTENSION_NAME = "minecraftManagement";
@@ -15,11 +23,22 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
                 MinecraftManagementExtension.class
         );
 
-        extension.getOutputDir().convention(project.getLayout().getProjectDirectory().dir("protocol-schemas"));
+        // Configure schemas / output dir convention
+        boolean isRoot = project.equals(project.getRootProject());
+        File rootSchemasDir = project.getRootProject().file("protocol-schemas");
+        File localSchemasDir = project.file("protocol-schemas");
+
+        if (!isRoot && rootSchemasDir.exists()) {
+            extension.getOutputDir().convention(project.getRootProject().getLayout().getProjectDirectory().dir("protocol-schemas"));
+        } else {
+            extension.getOutputDir().convention(project.getLayout().getProjectDirectory().dir("protocol-schemas"));
+        }
+
         extension.getSchemasDir().convention(extension.getOutputDir());
         extension.getCacheDir().convention(project.getLayout().getBuildDirectory().dir("minecraft-servers"));
 
-        if (project.file("client").isDirectory()) {
+        // Configure generated sources dir convention
+        if (isRoot && project.file("client").isDirectory()) {
             extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("client/src/generated/java"));
         } else {
             extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("src/generated/java"));
@@ -45,27 +64,49 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
             task.dependsOn(EXTRACT_TASK_NAME);
         });
 
-        project.getTasks().register(GENERATE_TASK_NAME, GenerateMinecraftManagementSourcesTask.class, task -> {
-            task.setGroup("minecraft management");
-            task.setDescription("Generates typed Java DTOs, records, enums, and API facades from OpenRPC schemas.");
+        TaskProvider<GenerateMinecraftManagementSourcesTask> generateTask = project.getTasks().register(
+                GENERATE_TASK_NAME,
+                GenerateMinecraftManagementSourcesTask.class,
+                task -> {
+                    task.setGroup("minecraft management");
+                    task.setDescription("Generates typed Java DTOs, records, enums, and API facades from OpenRPC schemas.");
 
-            task.getSchemasDir().convention(extension.getSchemasDir());
-            task.getOutputDir().convention(extension.getGeneratedSourcesDir());
-            task.getPackageName().convention(extension.getPackageName());
-            task.getClientClassName().convention(extension.getClientClassName());
-        });
+                    task.getSchemasDir().convention(extension.getSchemasDir());
+                    task.getOutputDir().convention(extension.getGeneratedSourcesDir());
+                    task.getPackageName().convention(extension.getPackageName());
+                    task.getClientClassName().convention(extension.getClientClassName());
+                }
+        );
 
         // Register alias tasks for generation
         project.getTasks().register("generateMsmpSources", task -> {
             task.setGroup("minecraft management");
             task.setDescription("Alias for " + GENERATE_TASK_NAME);
-            task.dependsOn(GENERATE_TASK_NAME);
+            task.dependsOn(generateTask);
         });
 
         project.getTasks().register("generateProtocolSources", task -> {
             task.setGroup("minecraft management");
             task.setDescription("Alias for " + GENERATE_TASK_NAME);
-            task.dependsOn(GENERATE_TASK_NAME);
+            task.dependsOn(generateTask);
+        });
+
+        // If Java plugin is applied (e.g. in a submodule or client project), wire sourceSets and compilation
+        project.getPlugins().withId("java", plugin -> {
+            JavaPluginExtension javaExtension = project.getExtensions().getByType(JavaPluginExtension.class);
+            SourceSet mainSourceSet = javaExtension.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+            mainSourceSet.getJava().srcDir(extension.getGeneratedSourcesDir());
+
+            project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task -> {
+                task.dependsOn(generateTask);
+            });
+        });
+
+        // Wire clean task if base plugin is present
+        project.getPlugins().withId("base", plugin -> {
+            project.getTasks().named(BasePlugin.CLEAN_TASK_NAME, Delete.class).configure(task -> {
+                task.delete(extension.getGeneratedSourcesDir());
+            });
         });
     }
 }
