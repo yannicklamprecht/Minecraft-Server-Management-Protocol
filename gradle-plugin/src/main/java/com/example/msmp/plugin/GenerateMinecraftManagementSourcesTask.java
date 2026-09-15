@@ -11,6 +11,7 @@ import org.gradle.api.tasks.*;
 import java.io.File;
 import java.io.IOException;
 
+@CacheableTask
 public abstract class GenerateMinecraftManagementSourcesTask extends DefaultTask {
 
     @InputFiles

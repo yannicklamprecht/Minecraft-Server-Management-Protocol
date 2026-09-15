@@ -20,8 +20,10 @@ class PluginConfigurationTest {
 
         MinecraftManagementExtension ext = project.getExtensions().getByType(MinecraftManagementExtension.class);
 
-        assertEquals(new File(projectDir, "build/protocol-schemas").getCanonicalFile(), ext.getOutputDir().get().getAsFile().getCanonicalFile());
-        assertEquals(new File(projectDir, "build/protocol-schemas").getCanonicalFile(), ext.getSchemasDir().get().getAsFile().getCanonicalFile());
+        File expectedSharedCache = new File(project.getGradle().getGradleUserHomeDir(), "caches/msmp");
+        assertEquals(new File(expectedSharedCache, "protocol-schemas").getCanonicalFile(), ext.getOutputDir().get().getAsFile().getCanonicalFile());
+        assertEquals(new File(expectedSharedCache, "protocol-schemas").getCanonicalFile(), ext.getSchemasDir().get().getAsFile().getCanonicalFile());
+        assertEquals(new File(expectedSharedCache, "minecraft-servers").getCanonicalFile(), ext.getCacheDir().get().getAsFile().getCanonicalFile());
         assertEquals(new File(projectDir, "src/generated/java").getCanonicalFile(), ext.getGeneratedSourcesDir().get().getAsFile().getCanonicalFile());
         assertFalse(ext.getPackageName().isPresent(), "packageName should not be defaulted so user is forced to configure it");
     }

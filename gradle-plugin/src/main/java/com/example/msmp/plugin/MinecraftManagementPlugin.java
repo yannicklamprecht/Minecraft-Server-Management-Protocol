@@ -23,11 +23,13 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
                 MinecraftManagementExtension.class
         );
 
-        // Configure schemas / output dir convention for this project
-        extension.getOutputDir().convention(project.getLayout().getBuildDirectory().dir("protocol-schemas"));
+        // Configure project-specific cache under <rootDir>/.gradle/caches/msmp
+        Directory projectGradleCacheDir = project.getRootProject().getLayout().getProjectDirectory().dir(".gradle/caches/msmp");
+
+        extension.getOutputDir().convention(projectGradleCacheDir.dir("protocol-schemas"));
         extension.getSchemasDir().convention(extension.getOutputDir());
+        extension.getCacheDir().convention(projectGradleCacheDir.dir("minecraft-servers"));
         extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("src/generated/java"));
-        extension.getCacheDir().convention(project.getLayout().getBuildDirectory().dir("minecraft-servers"));
 
         TaskProvider<ExtractMinecraftManagementSchemasTask> extractTask = project.getTasks().register(EXTRACT_TASK_NAME, ExtractMinecraftManagementSchemasTask.class, task -> {
             task.setGroup("minecraft management");

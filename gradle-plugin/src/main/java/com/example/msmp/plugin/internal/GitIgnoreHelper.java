@@ -50,7 +50,8 @@ public final class GitIgnoreHelper {
         if (normalizedTarget.startsWith(normalizedRoot)) {
             relativePath = normalizedRoot.relativize(normalizedTarget).toString().replace('\\', '/');
         } else {
-            relativePath = targetDir.getFileName().toString();
+            // Target is outside project root (e.g. ~/.gradle/caches/...) -> no .gitignore entry needed
+            return false;
         }
 
         if (relativePath.isBlank()) {
