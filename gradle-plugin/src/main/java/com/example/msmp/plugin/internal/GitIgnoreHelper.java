@@ -61,6 +61,10 @@ public final class GitIgnoreHelper {
             relativePath = relativePath + "/";
         }
 
+        if (relativePath.startsWith("build/") || relativePath.contains("/build/") || relativePath.startsWith(".gradle/")) {
+            return false;
+        }
+
         try {
             if (!Files.exists(gitIgnore)) {
                 Files.writeString(gitIgnore, relativePath + System.lineSeparator(), StandardOpenOption.CREATE);
@@ -71,11 +75,20 @@ public final class GitIgnoreHelper {
             String trimmedPattern = relativePath.endsWith("/") ? relativePath.substring(0, relativePath.length() - 1) : relativePath;
             for (String line : lines) {
                 String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    continue;
+                }
                 if (trimmed.equals(relativePath)
                         || trimmed.equals("/" + relativePath)
                         || trimmed.equals(trimmedPattern)
                         || trimmed.equals("/" + trimmedPattern)) {
                     return false;
+                }
+                if (trimmed.endsWith("/")) {
+                    String prefix = trimmed.startsWith("/") ? trimmed.substring(1) : trimmed;
+                    if (relativePath.startsWith(prefix) || relativePath.contains("/" + prefix)) {
+                        return false;
+                    }
                 }
             }
 

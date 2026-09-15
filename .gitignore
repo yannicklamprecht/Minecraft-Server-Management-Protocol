@@ -5,5 +5,3 @@ out/
 *.iml
 
 logs/
-protocol-schemas/
-client/protocol-schemas/

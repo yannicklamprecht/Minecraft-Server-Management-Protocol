@@ -24,7 +24,7 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
         );
 
         // Configure schemas / output dir convention for this project
-        extension.getOutputDir().convention(project.getLayout().getProjectDirectory().dir("protocol-schemas"));
+        extension.getOutputDir().convention(project.getLayout().getBuildDirectory().dir("protocol-schemas"));
         extension.getSchemasDir().convention(extension.getOutputDir());
         extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("src/generated/java"));
         extension.getCacheDir().convention(project.getLayout().getBuildDirectory().dir("minecraft-servers"));

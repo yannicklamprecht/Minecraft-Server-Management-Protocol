@@ -89,4 +89,16 @@ class GitIgnoreHelperTest {
         String content = Files.readString(gitIgnore);
         assertTrue(content.contains("submodule/schemas/"));
     }
+
+    @Test
+    void testEnsureIgnoredBuildDirectoryNotAdded(@TempDir Path tempDir) throws IOException {
+        Path targetDir = tempDir.resolve("build").resolve("protocol-schemas");
+        Files.createDirectories(targetDir);
+
+        Path gitIgnore = tempDir.resolve(".gitignore");
+        Files.writeString(gitIgnore, "build/\n");
+
+        boolean added = GitIgnoreHelper.ensureIgnored(tempDir, targetDir);
+        assertFalse(added);
+    }
 }
