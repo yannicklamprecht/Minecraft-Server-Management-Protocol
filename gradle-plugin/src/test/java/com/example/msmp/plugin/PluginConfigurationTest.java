@@ -47,5 +47,7 @@ class PluginConfigurationTest {
 
         assertNotNull(project.getTasks().findByName("cleanMinecraftManagementCache"));
         assertNotNull(project.getTasks().findByName("cleanCache"));
+        assertNotNull(project.getTasks().findByName("cleanMinecraftManagementSources"));
+        assertNotNull(project.getTasks().findByName("cleanGeneratedSources"));
     }
 }

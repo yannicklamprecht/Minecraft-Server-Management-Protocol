@@ -18,6 +18,8 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
     public static final String GENERATE_TASK_NAME = "generateMinecraftManagementSources";
     public static final String CLEAN_CACHE_TASK_NAME = "cleanMinecraftManagementCache";
     public static final String CLEAN_CACHE_ALIAS_TASK_NAME = "cleanCache";
+    public static final String CLEAN_SOURCES_TASK_NAME = "cleanMinecraftManagementSources";
+    public static final String CLEAN_SOURCES_ALIAS_TASK_NAME = "cleanGeneratedSources";
 
     @Override
     public void apply(Project project) {
@@ -99,6 +101,21 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
             });
         }
 
+        // Register clean generated sources tasks
+        TaskProvider<Delete> cleanSourcesTask = project.getTasks().register(CLEAN_SOURCES_TASK_NAME, Delete.class, task -> {
+            task.setGroup("minecraft management");
+            task.setDescription("Cleans the generated Minecraft Management Java sources.");
+            task.delete(extension.getGeneratedSourcesDir());
+        });
+
+        if (!project.getTasks().getNames().contains(CLEAN_SOURCES_ALIAS_TASK_NAME)) {
+            project.getTasks().register(CLEAN_SOURCES_ALIAS_TASK_NAME, task -> {
+                task.setGroup("minecraft management");
+                task.setDescription("Alias for " + CLEAN_SOURCES_TASK_NAME);
+                task.dependsOn(cleanSourcesTask);
+            });
+        }
+
         // If Java plugin is applied (e.g. in a submodule or client project), wire sourceSets and compilation
         project.getPlugins().withId("java", plugin -> {
             JavaPluginExtension javaExtension = project.getExtensions().getByType(JavaPluginExtension.class);
@@ -107,13 +124,6 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
 
             project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task -> {
                 task.dependsOn(generateTask);
-            });
-        });
-
-        // Wire clean task if base plugin is present
-        project.getPlugins().withId("base", plugin -> {
-            project.getTasks().named(BasePlugin.CLEAN_TASK_NAME, Delete.class).configure(task -> {
-                task.delete(extension.getGeneratedSourcesDir());
             });
         });
     }
