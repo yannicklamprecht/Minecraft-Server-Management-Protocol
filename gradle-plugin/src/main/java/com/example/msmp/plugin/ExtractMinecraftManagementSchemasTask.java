@@ -46,6 +46,9 @@ public abstract class ExtractMinecraftManagementSchemasTask extends DefaultTask 
     @Internal
     public abstract DirectoryProperty getCacheDir();
 
+    @Internal
+    public abstract DirectoryProperty getProjectRootDir();
+
     @OutputDirectory
     public abstract DirectoryProperty getOutputDir();
 
@@ -58,6 +61,20 @@ public abstract class ExtractMinecraftManagementSchemasTask extends DefaultTask 
         File cacheDirFile = getCacheDir().get().getAsFile();
         File outputDirFile = getOutputDir().get().getAsFile();
         String minVersion = getMinMinecraftVersion().getOrNull();
+
+        if (!outputDirFile.exists()) {
+            if (outputDirFile.mkdirs()) {
+                getLogger().lifecycle("Created output directory: {}", outputDirFile.getAbsolutePath());
+            }
+        }
+
+        // Ensure schema generation directory is in .gitignore
+        File rootDirFile = getProjectRootDir().isPresent()
+                ? getProjectRootDir().get().getAsFile()
+                : outputDirFile.getParentFile();
+        if (rootDirFile != null && com.example.msmp.plugin.internal.GitIgnoreHelper.ensureIgnored(rootDirFile.toPath(), outputDirFile.toPath())) {
+            getLogger().lifecycle("Added schema output directory to .gitignore");
+        }
 
         getLogger().lifecycle("Fetching Minecraft versions manifest from {}...", manifestUrl);
         MojangManifestService manifestService = new MojangManifestService(manifestUrl);

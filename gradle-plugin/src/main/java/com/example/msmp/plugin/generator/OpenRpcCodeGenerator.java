@@ -35,7 +35,10 @@ public final class OpenRpcCodeGenerator {
 
     public void generateAll(Path schemaRoot, Path output, String basePackage) throws IOException {
         Files.createDirectories(output);
-        if (!Files.exists(schemaRoot)) return;
+        if (!Files.exists(schemaRoot)) {
+            Files.createDirectories(schemaRoot);
+            return;
+        }
 
         try (var versions = Files.list(schemaRoot)) {
             for (Path versionDir : versions.filter(Files::isDirectory).sorted().toList()) {

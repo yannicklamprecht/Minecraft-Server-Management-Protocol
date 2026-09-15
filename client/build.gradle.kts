@@ -32,6 +32,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+
 minecraftManagement {
     packageName.set("de.craftstuebchen.mc.management")
 }

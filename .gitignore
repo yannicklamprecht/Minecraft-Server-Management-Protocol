@@ -4,6 +4,6 @@ out/
 .idea/
 *.iml
 
-versions/
-protocol-schemas/
 logs/
+protocol-schemas/
+client/protocol-schemas/

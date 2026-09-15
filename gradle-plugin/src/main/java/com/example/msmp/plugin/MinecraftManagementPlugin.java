@@ -23,31 +23,17 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
                 MinecraftManagementExtension.class
         );
 
-        // Configure schemas / output dir convention
-        boolean isRoot = project.equals(project.getRootProject());
-        File rootSchemasDir = project.getRootProject().file("protocol-schemas");
-        File localSchemasDir = project.file("protocol-schemas");
-
-        if (!isRoot && rootSchemasDir.exists()) {
-            extension.getOutputDir().convention(project.getRootProject().getLayout().getProjectDirectory().dir("protocol-schemas"));
-        } else {
-            extension.getOutputDir().convention(project.getLayout().getProjectDirectory().dir("protocol-schemas"));
-        }
-
+        // Configure schemas / output dir convention for this project
+        extension.getOutputDir().convention(project.getLayout().getProjectDirectory().dir("protocol-schemas"));
         extension.getSchemasDir().convention(extension.getOutputDir());
+        extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("src/generated/java"));
         extension.getCacheDir().convention(project.getLayout().getBuildDirectory().dir("minecraft-servers"));
 
-        // Configure generated sources dir convention
-        if (isRoot && project.file("client").isDirectory()) {
-            extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("client/src/generated/java"));
-        } else {
-            extension.getGeneratedSourcesDir().convention(project.getLayout().getProjectDirectory().dir("src/generated/java"));
-        }
-
-        project.getTasks().register(EXTRACT_TASK_NAME, ExtractMinecraftManagementSchemasTask.class, task -> {
+        TaskProvider<ExtractMinecraftManagementSchemasTask> extractTask = project.getTasks().register(EXTRACT_TASK_NAME, ExtractMinecraftManagementSchemasTask.class, task -> {
             task.setGroup("minecraft management");
             task.setDescription("Downloads Minecraft server JARs, executes data generation, and extracts OpenRPC schemas for the Management Protocol.");
 
+            task.getProjectRootDir().convention(project.getRootProject().getLayout().getProjectDirectory());
             task.getManifestUrl().convention(extension.getManifestUrl());
             task.getOnlyReleases().convention(extension.getOnlyReleases());
             task.getVersions().convention(extension.getVersions());
@@ -71,10 +57,12 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
                     task.setGroup("minecraft management");
                     task.setDescription("Generates typed Java DTOs, records, enums, and API facades from OpenRPC schemas.");
 
+                    task.getProjectRootDir().convention(project.getRootProject().getLayout().getProjectDirectory());
                     task.getSchemasDir().convention(extension.getSchemasDir());
                     task.getOutputDir().convention(extension.getGeneratedSourcesDir());
                     task.getPackageName().convention(extension.getPackageName());
                     task.getClientClassName().convention(extension.getClientClassName());
+                    task.dependsOn(extractTask);
                 }
         );
 
