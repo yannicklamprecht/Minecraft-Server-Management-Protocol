@@ -1,9 +1,10 @@
 package com.example.msmp;
 
-import com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications;
-import com.example.msmp.generated.v3_1_0.dto.Player;
+
 import com.example.msmp.transport.MinecraftManagementClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.craftstuebchen.mc.management.v3_1_0.MinecraftManagementNotifications;
+import de.craftstuebchen.mc.management.v3_1_0.dto.Player;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;

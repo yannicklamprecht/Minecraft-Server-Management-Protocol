@@ -1,7 +1,8 @@
 package com.example.msmp;
 
-import com.example.msmp.generated.v3_1_0.dto.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.craftstuebchen.mc.management.v3_1_0.dto.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

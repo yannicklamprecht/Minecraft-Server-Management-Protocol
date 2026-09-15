@@ -67,36 +67,36 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
         return new com.example.msmp.api.DefaultMinecraftManagementSession(this, protocolVersion);
     }
 
-    public com.example.msmp.generated.v1_0_0.MinecraftManagementApi v1_0_0() {
-        return new com.example.msmp.generated.v1_0_0.MinecraftManagementApi(this);
+    public de.craftstuebchen.mc.management.v1_0_0.MinecraftManagementApi v1_0_0() {
+        return new de.craftstuebchen.mc.management.v1_0_0.MinecraftManagementApi(this);
     }
 
-    public com.example.msmp.generated.v1_0_0.MinecraftManagementNotifications notificationsV1_0_0() {
-        return new com.example.msmp.generated.v1_0_0.MinecraftManagementNotifications(this);
+    public de.craftstuebchen.mc.management.v1_0_0.MinecraftManagementNotifications notificationsV1_0_0() {
+        return new de.craftstuebchen.mc.management.v1_0_0.MinecraftManagementNotifications(this);
     }
 
-    public com.example.msmp.generated.v2_0_0.MinecraftManagementApi v2_0_0() {
-        return new com.example.msmp.generated.v2_0_0.MinecraftManagementApi(this);
+    public de.craftstuebchen.mc.management.v2_0_0.MinecraftManagementApi v2_0_0() {
+        return new de.craftstuebchen.mc.management.v2_0_0.MinecraftManagementApi(this);
     }
 
-    public com.example.msmp.generated.v2_0_0.MinecraftManagementNotifications notificationsV2_0_0() {
-        return new com.example.msmp.generated.v2_0_0.MinecraftManagementNotifications(this);
+    public de.craftstuebchen.mc.management.v2_0_0.MinecraftManagementNotifications notificationsV2_0_0() {
+        return new de.craftstuebchen.mc.management.v2_0_0.MinecraftManagementNotifications(this);
     }
 
-    public com.example.msmp.generated.v3_0_0.MinecraftManagementApi v3_0_0() {
-        return new com.example.msmp.generated.v3_0_0.MinecraftManagementApi(this);
+    public de.craftstuebchen.mc.management.v3_0_0.MinecraftManagementApi v3_0_0() {
+        return new de.craftstuebchen.mc.management.v3_0_0.MinecraftManagementApi(this);
     }
 
-    public com.example.msmp.generated.v3_0_0.MinecraftManagementNotifications notificationsV3_0_0() {
-        return new com.example.msmp.generated.v3_0_0.MinecraftManagementNotifications(this);
+    public de.craftstuebchen.mc.management.v3_0_0.MinecraftManagementNotifications notificationsV3_0_0() {
+        return new de.craftstuebchen.mc.management.v3_0_0.MinecraftManagementNotifications(this);
     }
 
-    public com.example.msmp.generated.v3_1_0.MinecraftManagementApi v3_1_0() {
-        return new com.example.msmp.generated.v3_1_0.MinecraftManagementApi(this);
+    public de.craftstuebchen.mc.management.v3_1_0.MinecraftManagementApi v3_1_0() {
+        return new de.craftstuebchen.mc.management.v3_1_0.MinecraftManagementApi(this);
     }
 
-    public com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications notificationsV3_1_0() {
-        return new com.example.msmp.generated.v3_1_0.MinecraftManagementNotifications(this);
+    public de.craftstuebchen.mc.management.v3_1_0.MinecraftManagementNotifications notificationsV3_1_0() {
+        return new de.craftstuebchen.mc.management.v3_1_0.MinecraftManagementNotifications(this);
     }
 
     public <R> CompletableFuture<R> call(String method, TypeReference<R> resultType) {
@@ -111,7 +111,7 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
         return call(method, params, mapper.getTypeFactory().constructType(resultType));
     }
 
-    @SuppressWarnings("unchecked")
+
     private <R> CompletableFuture<R> call(String method, Object params, JavaType resultType) {
         if (webSocket == null) return CompletableFuture.failedFuture(new IllegalStateException("Not connected"));
         long id = requestIds.incrementAndGet();
