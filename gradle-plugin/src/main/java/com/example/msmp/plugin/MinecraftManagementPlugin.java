@@ -16,6 +16,8 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
     public static final String EXTENSION_NAME = "minecraftManagement";
     public static final String EXTRACT_TASK_NAME = "extractMinecraftManagementSchemas";
     public static final String GENERATE_TASK_NAME = "generateMinecraftManagementSources";
+    public static final String CLEAN_CACHE_TASK_NAME = "cleanMinecraftManagementCache";
+    public static final String CLEAN_CACHE_ALIAS_TASK_NAME = "cleanCache";
 
     @Override
     public void apply(Project project) {
@@ -81,6 +83,21 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
             task.setDescription("Alias for " + GENERATE_TASK_NAME);
             task.dependsOn(generateTask);
         });
+
+        // Register clean cache tasks
+        TaskProvider<Delete> cleanCacheTask = project.getTasks().register(CLEAN_CACHE_TASK_NAME, Delete.class, task -> {
+            task.setGroup("minecraft management");
+            task.setDescription("Cleans the Minecraft Management plugin cache (downloaded server JARs and extracted schemas).");
+            task.delete(extension.getCacheDir(), extension.getOutputDir());
+        });
+
+        if (!project.getTasks().getNames().contains(CLEAN_CACHE_ALIAS_TASK_NAME)) {
+            project.getTasks().register(CLEAN_CACHE_ALIAS_TASK_NAME, task -> {
+                task.setGroup("minecraft management");
+                task.setDescription("Alias for " + CLEAN_CACHE_TASK_NAME);
+                task.dependsOn(cleanCacheTask);
+            });
+        }
 
         // If Java plugin is applied (e.g. in a submodule or client project), wire sourceSets and compilation
         project.getPlugins().withId("java", plugin -> {

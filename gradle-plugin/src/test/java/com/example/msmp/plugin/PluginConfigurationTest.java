@@ -20,7 +20,7 @@ class PluginConfigurationTest {
 
         MinecraftManagementExtension ext = project.getExtensions().getByType(MinecraftManagementExtension.class);
 
-        File expectedProjectCache = new File(projectDir, ".gradle/caches/msmp");
+        File expectedProjectCache = new File(projectDir, ".gradle/caches/minecraft-management-gradle-plugin");
         assertEquals(new File(expectedProjectCache, "protocol-schemas").getCanonicalFile(), ext.getOutputDir().get().getAsFile().getCanonicalFile());
         assertEquals(new File(expectedProjectCache, "protocol-schemas").getCanonicalFile(), ext.getSchemasDir().get().getAsFile().getCanonicalFile());
         assertEquals(new File(expectedProjectCache, "minecraft-servers").getCanonicalFile(), ext.getCacheDir().get().getAsFile().getCanonicalFile());
@@ -38,5 +38,14 @@ class PluginConfigurationTest {
                 .get();
 
         assertThrows(InvalidUserDataException.class, task::generate);
+    }
+
+    @Test
+    void testCleanCacheTaskRegistered(@TempDir File projectDir) {
+        Project project = ProjectBuilder.builder().withProjectDir(projectDir).build();
+        project.getPlugins().apply(MinecraftManagementPlugin.class);
+
+        assertNotNull(project.getTasks().findByName("cleanMinecraftManagementCache"));
+        assertNotNull(project.getTasks().findByName("cleanCache"));
     }
 }
