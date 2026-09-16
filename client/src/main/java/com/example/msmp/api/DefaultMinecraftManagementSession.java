@@ -4,6 +4,7 @@ import com.example.msmp.transport.MinecraftManagementClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +17,9 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
     public DefaultMinecraftManagementSession(MinecraftManagementClient client, String protocolVersion) {
         this.client = Objects.requireNonNull(client, "client");
         this.protocolVersion = protocolVersion != null && !protocolVersion.isBlank() ? protocolVersion : "3.1.0";
+        if (!List.of("1.0.0", "2.0.0", "3.0.0", "3.1.0").contains(this.protocolVersion)) {
+            throw new IllegalArgumentException("Unsupported protocol version: " + this.protocolVersion);
+        }
     }
 
     @Override
@@ -31,17 +35,20 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
 
     @Override
     public CompletableFuture<Void> save(boolean flush) {
-        return client.call("minecraft:server/save", Map.of("flush", flush), new TypeReference<Void>() {});
+        return client.call("minecraft:server/save", Map.of("flush", flush), new TypeReference<Boolean>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> stop() {
-        return client.call("minecraft:server/stop", new TypeReference<Void>() {});
+        return client.call("minecraft:server/stop", new TypeReference<Boolean>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> sendSystemMessage(String message) {
-        return client.call("minecraft:server/system_message", Map.of("message", message), new TypeReference<Void>() {});
+        return sendSystemMessage(new SystemMessageView(MessageView.literal(message), false, List.of()))
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -50,7 +57,8 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
         Map<String, Object> params = reason != null && !reason.isBlank()
                 ? Map.of("player", playerMap, "message", Map.of("literal", reason))
                 : Map.of("player", playerMap);
-        return client.call("minecraft:players/kick", params, new TypeReference<Void>() {});
+        return client.call("minecraft:players/kick", Map.of("kick", List.of(params)), new TypeReference<List<PlayerView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -73,13 +81,15 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
                 "permissionLevel", permissionLevel,
                 "bypassesPlayerLimit", bypassesPlayerLimit
         );
-        return client.call("minecraft:operators/add", Map.of("operator", operatorMap), new TypeReference<Void>() {});
+        return client.call("minecraft:operators/add", Map.of("add", List.of(operatorMap)), new TypeReference<List<OperatorView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> removeOperator(String playerNameOrUuid) {
         Map<String, Object> playerMap = isUuid(playerNameOrUuid) ? Map.of("id", playerNameOrUuid) : Map.of("name", playerNameOrUuid);
-        return client.call("minecraft:operators/remove", Map.of("player", playerMap), new TypeReference<Void>() {});
+        return client.call("minecraft:operators/remove", Map.of("remove", List.of(playerMap)), new TypeReference<List<OperatorView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -91,13 +101,15 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
     @Override
     public CompletableFuture<Void> addToAllowlist(String playerNameOrUuid) {
         Map<String, Object> playerMap = isUuid(playerNameOrUuid) ? Map.of("id", playerNameOrUuid) : Map.of("name", playerNameOrUuid);
-        return client.call("minecraft:allowlist/add", Map.of("player", playerMap), new TypeReference<Void>() {});
+        return client.call("minecraft:allowlist/add", Map.of("add", List.of(playerMap)), new TypeReference<List<PlayerView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> removeFromAllowlist(String playerNameOrUuid) {
         Map<String, Object> playerMap = isUuid(playerNameOrUuid) ? Map.of("id", playerNameOrUuid) : Map.of("name", playerNameOrUuid);
-        return client.call("minecraft:allowlist/remove", Map.of("player", playerMap), new TypeReference<Void>() {});
+        return client.call("minecraft:allowlist/remove", Map.of("remove", List.of(playerMap)), new TypeReference<List<PlayerView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -115,13 +127,15 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
         if (source != null) banMap.put("source", source);
         if (expires != null) banMap.put("expires", expires);
 
-        return client.call("minecraft:bans/add", Map.of("ban", banMap), new TypeReference<Void>() {});
+        return client.call("minecraft:bans/add", Map.of("add", List.of(banMap)), new TypeReference<List<UserBanView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> unbanUser(String playerNameOrUuid) {
         Map<String, Object> playerMap = isUuid(playerNameOrUuid) ? Map.of("id", playerNameOrUuid) : Map.of("name", playerNameOrUuid);
-        return client.call("minecraft:bans/remove", Map.of("player", playerMap), new TypeReference<Void>() {});
+        return client.call("minecraft:bans/remove", Map.of("remove", List.of(playerMap)), new TypeReference<List<UserBanView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -138,12 +152,14 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
         if (source != null) banMap.put("source", source);
         if (expires != null) banMap.put("expires", expires);
 
-        return client.call("minecraft:ip_bans/add", Map.of("ban", banMap), new TypeReference<Void>() {});
+        return client.call("minecraft:ip_bans/add", Map.of("add", List.of(banMap)), new TypeReference<List<IpBanView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
     public CompletableFuture<Void> unbanIp(String ip) {
-        return client.call("minecraft:ip_bans/remove", Map.of("ip", ip), new TypeReference<Void>() {});
+        return client.call("minecraft:ip_bans/remove", Map.of("ip", List.of(ip)), new TypeReference<List<IpBanView>>() {})
+                .thenApply(ignored -> null);
     }
 
     @Override
@@ -189,7 +205,396 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
 
     @Override
     public void onServerActivity(Runnable listener) {
+        if (protocolVersion.equals("1.0.0")) {
+            throw new UnsupportedOperationException("Server activity notifications require protocol 2.0.0 or later");
+        }
         client.registerNotification("minecraft:notification/server/activity", listener);
+    }
+
+    @Override
+    public CompletableFuture<List<PlayerView>> setAllowlist(List<PlayerView> values) {
+        return client.call("minecraft:allowlist/set", Map.of("players", values), new TypeReference<List<PlayerView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<PlayerView>> addAllowlist(List<PlayerView> values) {
+        return client.call("minecraft:allowlist/add", Map.of("add", values), new TypeReference<List<PlayerView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<PlayerView>> removeAllowlist(List<PlayerView> values) {
+        return client.call("minecraft:allowlist/remove", Map.of("remove", values), new TypeReference<List<PlayerView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<PlayerView>> clearAllowlist() {
+        return client.call("minecraft:allowlist/clear", new TypeReference<List<PlayerView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<OperatorView>> setOperators(List<OperatorView> values) {
+        return client.call("minecraft:operators/set", Map.of("operators", values), new TypeReference<List<OperatorView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<OperatorView>> addOperators(List<OperatorView> values) {
+        return client.call("minecraft:operators/add", Map.of("add", values), new TypeReference<List<OperatorView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<OperatorView>> removeOperators(List<PlayerView> values) {
+        return client.call("minecraft:operators/remove", Map.of("remove", values), new TypeReference<List<OperatorView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<OperatorView>> clearOperators() {
+        return client.call("minecraft:operators/clear", new TypeReference<List<OperatorView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<UserBanView>> setUserBans(List<UserBanView> values) {
+        return client.call("minecraft:bans/set", Map.of("bans", values), new TypeReference<List<UserBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<UserBanView>> addUserBans(List<UserBanView> values) {
+        return client.call("minecraft:bans/add", Map.of("add", values), new TypeReference<List<UserBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<UserBanView>> removeUserBans(List<PlayerView> values) {
+        return client.call("minecraft:bans/remove", Map.of("remove", values), new TypeReference<List<UserBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<UserBanView>> clearUserBans() {
+        return client.call("minecraft:bans/clear", new TypeReference<List<UserBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<IpBanView>> setIpBans(List<IpBanView> values) {
+        return client.call("minecraft:ip_bans/set", Map.of("banlist", values), new TypeReference<List<IpBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<IpBanView>> addIpBans(List<IncomingIpBanView> values) {
+        return client.call("minecraft:ip_bans/add", Map.of("add", values), new TypeReference<List<IpBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<IpBanView>> removeIpBans(List<String> values) {
+        return client.call("minecraft:ip_bans/remove", Map.of("ip", values), new TypeReference<List<IpBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<IpBanView>> clearIpBans() {
+        return client.call("minecraft:ip_bans/clear", new TypeReference<List<IpBanView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<List<PlayerView>> kickPlayers(List<KickPlayerView> players) {
+        return client.call("minecraft:players/kick", Map.of("kick", players), new TypeReference<List<PlayerView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> sendSystemMessage(SystemMessageView message) {
+        return client.call("minecraft:server/system_message", Map.of("message", message), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getAutosave() {
+        return client.call("minecraft:serversettings/autosave", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setAutosave(Boolean value) {
+        return client.call("minecraft:serversettings/autosave/set", Map.of("enable", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Difficulty> getDifficulty() {
+        return client.call("minecraft:serversettings/difficulty", new TypeReference<Difficulty>() {});
+    }
+
+    @Override
+    public CompletableFuture<Difficulty> setDifficulty(Difficulty value) {
+        return client.call("minecraft:serversettings/difficulty/set", Map.of("difficulty", value), new TypeReference<Difficulty>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getEnforceAllowlist() {
+        return client.call("minecraft:serversettings/enforce_allowlist", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setEnforceAllowlist(Boolean value) {
+        return client.call("minecraft:serversettings/enforce_allowlist/set", Map.of("enforce", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getUseAllowlist() {
+        return client.call("minecraft:serversettings/use_allowlist", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setUseAllowlist(Boolean value) {
+        return client.call("minecraft:serversettings/use_allowlist/set", Map.of("use", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getMaxPlayers() {
+        return client.call("minecraft:serversettings/max_players", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setMaxPlayers(Long value) {
+        return client.call("minecraft:serversettings/max_players/set", Map.of("max", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getPauseWhenEmptySeconds() {
+        return client.call("minecraft:serversettings/pause_when_empty_seconds", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setPauseWhenEmptySeconds(Long value) {
+        return client.call("minecraft:serversettings/pause_when_empty_seconds/set", Map.of("seconds", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getPlayerIdleTimeout() {
+        return client.call("minecraft:serversettings/player_idle_timeout", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setPlayerIdleTimeout(Long value) {
+        return client.call("minecraft:serversettings/player_idle_timeout/set", Map.of("seconds", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getAllowFlight() {
+        return client.call("minecraft:serversettings/allow_flight", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setAllowFlight(Boolean value) {
+        return client.call("minecraft:serversettings/allow_flight/set", Map.of("allow", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<String> getMotd() {
+        return client.call("minecraft:serversettings/motd", new TypeReference<String>() {});
+    }
+
+    @Override
+    public CompletableFuture<String> setMotd(String value) {
+        return client.call("minecraft:serversettings/motd/set", Map.of("message", value), new TypeReference<String>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getSpawnProtectionRadius() {
+        return client.call("minecraft:serversettings/spawn_protection_radius", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setSpawnProtectionRadius(Long value) {
+        return client.call("minecraft:serversettings/spawn_protection_radius/set", Map.of("radius", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getForceGameMode() {
+        return client.call("minecraft:serversettings/force_game_mode", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setForceGameMode(Boolean value) {
+        return client.call("minecraft:serversettings/force_game_mode/set", Map.of("force", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<GameMode> getGameMode() {
+        return client.call("minecraft:serversettings/game_mode", new TypeReference<GameMode>() {});
+    }
+
+    @Override
+    public CompletableFuture<GameMode> setGameMode(GameMode value) {
+        return client.call("minecraft:serversettings/game_mode/set", Map.of("mode", value), new TypeReference<GameMode>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getViewDistance() {
+        return client.call("minecraft:serversettings/view_distance", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setViewDistance(Long value) {
+        return client.call("minecraft:serversettings/view_distance/set", Map.of("distance", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getSimulationDistance() {
+        return client.call("minecraft:serversettings/simulation_distance", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setSimulationDistance(Long value) {
+        return client.call("minecraft:serversettings/simulation_distance/set", Map.of("distance", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getAcceptTransfers() {
+        return client.call("minecraft:serversettings/accept_transfers", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setAcceptTransfers(Boolean value) {
+        return client.call("minecraft:serversettings/accept_transfers/set", Map.of("accept", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getStatusHeartbeatInterval() {
+        return client.call("minecraft:serversettings/status_heartbeat_interval", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setStatusHeartbeatInterval(Long value) {
+        return client.call("minecraft:serversettings/status_heartbeat_interval/set", Map.of("seconds", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getOperatorUserPermissionLevel() {
+        return client.call("minecraft:serversettings/operator_user_permission_level", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setOperatorUserPermissionLevel(Long value) {
+        return client.call("minecraft:serversettings/operator_user_permission_level/set", Map.of("level", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getHideOnlinePlayers() {
+        return client.call("minecraft:serversettings/hide_online_players", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setHideOnlinePlayers(Boolean value) {
+        return client.call("minecraft:serversettings/hide_online_players/set", Map.of("hide", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> getStatusReplies() {
+        return client.call("minecraft:serversettings/status_replies", new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setStatusReplies(Boolean value) {
+        return client.call("minecraft:serversettings/status_replies/set", Map.of("enable", value), new TypeReference<Boolean>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> getEntityBroadcastRange() {
+        return client.call("minecraft:serversettings/entity_broadcast_range", new TypeReference<Long>() {});
+    }
+
+    @Override
+    public CompletableFuture<Long> setEntityBroadcastRange(Long value) {
+        return client.call("minecraft:serversettings/entity_broadcast_range/set", Map.of("percentage_points", value), new TypeReference<Long>() {});
+    }
+
+    @Override
+    public void onOperatorAdded(Consumer<OperatorView> listener) {
+        client.registerNotificationProperty("minecraft:notification/operators/added", "player", new TypeReference<OperatorView>() {}, listener);
+    }
+
+    @Override
+    public void onOperatorRemoved(Consumer<OperatorView> listener) {
+        client.registerNotificationProperty("minecraft:notification/operators/removed", "player", new TypeReference<OperatorView>() {}, listener);
+    }
+
+    @Override
+    public void onAllowlistAdded(Consumer<PlayerView> listener) {
+        client.registerNotificationProperty("minecraft:notification/allowlist/added", "player", new TypeReference<PlayerView>() {}, listener);
+    }
+
+    @Override
+    public void onAllowlistRemoved(Consumer<PlayerView> listener) {
+        client.registerNotificationProperty("minecraft:notification/allowlist/removed", "player", new TypeReference<PlayerView>() {}, listener);
+    }
+
+    @Override
+    public void onIpBanAdded(Consumer<IpBanView> listener) {
+        client.registerNotificationProperty("minecraft:notification/ip_bans/added", "player", new TypeReference<IpBanView>() {}, listener);
+    }
+
+    @Override
+    public void onIpBanRemoved(Consumer<String> listener) {
+        client.registerNotificationProperty("minecraft:notification/ip_bans/removed", "player", new TypeReference<String>() {}, listener);
+    }
+
+    @Override
+    public void onUserBanAdded(Consumer<UserBanView> listener) {
+        client.registerNotificationProperty("minecraft:notification/bans/added", "player", new TypeReference<UserBanView>() {}, listener);
+    }
+
+    @Override
+    public void onUserBanRemoved(Consumer<PlayerView> listener) {
+        client.registerNotificationProperty("minecraft:notification/bans/removed", "player", new TypeReference<PlayerView>() {}, listener);
+    }
+
+    @Override
+    public void onGameRuleUpdated(Consumer<GameRuleView> listener) {
+        client.registerNotificationProperty("minecraft:notification/gamerules/updated", "gamerule", new TypeReference<GameRuleView>() {}, listener);
+    }
+
+    @Override
+    public void onWorldUpgradeStarted(Runnable listener) {
+        requireWorldUpgradeNotifications();
+        client.registerNotification("minecraft:notification/world/upgrade_started", listener);
+    }
+
+    @Override
+    public void onWorldUpgradeProgress(Consumer<BigDecimal> listener) {
+        requireWorldUpgradeNotifications();
+        client.registerNotificationProperty("minecraft:notification/world/upgrade_progress", "progress", new TypeReference<BigDecimal>() {}, listener);
+    }
+
+    @Override
+    public void onWorldUpgradeFinished(Runnable listener) {
+        requireWorldUpgradeNotifications();
+        client.registerNotification("minecraft:notification/world/upgrade_finished", listener);
+    }
+
+    @Override
+    public void onWorldUpgradeFailed(Consumer<String> listener) {
+        requireWorldUpgradeNotifications();
+        client.registerNotificationProperty("minecraft:notification/world/upgrade_failed", "reason", new TypeReference<String>() {}, listener);
+    }
+    @Override
+    public CompletableFuture<List<GameRuleView>> getGameRules() {
+        return client.call("minecraft:gamerules", new TypeReference<List<GameRuleView>>() {});
+    }
+
+    @Override
+    public CompletableFuture<GameRuleView> updateGameRule(String key, boolean value) {
+        return updateGameRuleValue(key, value);
+    }
+
+    @Override
+    public CompletableFuture<GameRuleView> updateGameRule(String key, long value) {
+        return updateGameRuleValue(key, value);
+    }
+
+    private CompletableFuture<GameRuleView> updateGameRuleValue(String key, Object value) {
+        Object encodedValue = protocolVersion.equals("1.0.0") ? value.toString() : value;
+        return client.call("minecraft:gamerules/update",
+                Map.of("gamerule", Map.of("key", key, "value", encodedValue)),
+                new TypeReference<GameRuleView>() {});
+    }
+
+    private void requireWorldUpgradeNotifications() {
+        if (!protocolVersion.equals("3.1.0")) {
+            throw new UnsupportedOperationException("World upgrade notifications require protocol 3.1.0");
+        }
     }
 
     @Override

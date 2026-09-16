@@ -62,11 +62,11 @@ public final class Main {
             session.onServerActivity(() ->
                     LOGGER.info("Server activity: {}", "Something happened"));
 
-            client.notificationsV1_0_0().onAllowlistAdded(player ->
+            session.onAllowlistAdded(player ->
                     LOGGER.info("Allowlist added: {} ({})", player.name(), player.id()));
-            client.notificationsV1_0_0().onGamerulesUpdated(gamerules ->
-                    LOGGER.info("Gamerules updated: {}", gamerules));
 
+            session.onGameRuleUpdated(gamerule ->
+                    LOGGER.info("Gamerule updated: {} = {}", gamerule.key(), gamerule.value()));
 
 
             Thread.currentThread().join();
