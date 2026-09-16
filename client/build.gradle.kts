@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     java
     application
@@ -39,6 +41,27 @@ minecraftManagement {
 
 application {
     mainClass.set("com.example.msmp.Main")
+}
+
+tasks.named<JavaExec>("run") {
+    val serverDefaults = rootProject.layout.projectDirectory.file("server/server.properties")
+    val localServerProperties = rootProject.layout.projectDirectory.file("server/run/server.properties")
+    doFirst {
+        if (environment["MINECRAFT_MANAGEMENT_SECRET"]?.toString().isNullOrBlank()) {
+            val defaults = Properties().apply {
+                serverDefaults.asFile.inputStream().use { load(it) }
+            }
+            val localSettings = Properties().apply {
+                if (localServerProperties.asFile.exists()) {
+                    localServerProperties.asFile.inputStream().use { load(it) }
+                }
+            }
+            val secret = localSettings.getProperty("management-server-secret")
+                ?.takeIf { it.isNotBlank() }
+                ?: defaults.getProperty("management-server-secret")
+            environment("MINECRAFT_MANAGEMENT_SECRET", secret)
+        }
+    }
 }
 
 tasks.withType<JavaCompile>().configureEach {

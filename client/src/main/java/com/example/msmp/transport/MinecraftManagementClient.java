@@ -100,7 +100,7 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
     }
 
     public <R> CompletableFuture<R> call(String method, TypeReference<R> resultType) {
-        return call(method, Map.of(), resultType);
+        return call(method, null, resultType);
     }
 
     public <R> CompletableFuture<R> call(String method, Object params, Class<R> resultType) {

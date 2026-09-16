@@ -231,8 +231,8 @@ public final class OpenRpcCodeGenerator {
             );
 
             if (mapEntries.isEmpty()) {
-                methodBuilder.addStatement("return client.call($S, $T.of(), new $T() {})",
-                        rpcName, Map.class, typeReferenceType);
+                methodBuilder.addStatement("return client.call($S, new $T() {})",
+                        rpcName, typeReferenceType);
             } else if (mapEntries.size() <= 10) {
                 methodBuilder.addStatement("return client.call($S, $T.of(" + String.join(", ", mapEntries) + "), new $T() {})",
                         rpcName, Map.class, typeReferenceType);

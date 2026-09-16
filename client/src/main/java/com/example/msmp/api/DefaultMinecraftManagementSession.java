@@ -36,7 +36,7 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
 
     @Override
     public CompletableFuture<Void> stop() {
-        return client.call("minecraft:server/stop", Map.of(), new TypeReference<Void>() {});
+        return client.call("minecraft:server/stop", new TypeReference<Void>() {});
     }
 
     @Override

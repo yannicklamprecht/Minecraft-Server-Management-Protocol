@@ -17,6 +17,33 @@ A multi-module Java 21 / Gradle project for extracting Minecraft Server Manageme
 
 ## Getting Started
 
+### Run a Local Paper Server
+
+The `server/` module uses [jpenilla's run-paper plugin](https://github.com/jpenilla/run-task)
+to download and run Paper 1.21.11 without building the client or extracting schemas:
+
+```bash
+./gradlew :server:runServer
+```
+
+The task accepts the Minecraft EULA automatically. On first launch it copies
+`server/server.properties` into the ignored `server/run/` directory, enabling the
+management server at `ws://localhost:25585` with TLS disabled for local development.
+The local-development authentication secret is `LocalDevelopmentManagementSecret12345678`.
+Run the client in another terminal; Gradle supplies the secret automatically:
+
+```bash
+./gradlew :client:run
+```
+
+Subsequent server runs preserve configuration changes and existing secrets, filling in
+the default secret only when missing or blank. The client run task reads the secret
+from `server/run/server.properties`, falling back to `server/server.properties` if
+the local secret is missing or blank. An explicitly set `MINECRAFT_MANAGEMENT_SECRET`
+environment variable takes precedence.
+Worlds and other runtime files also
+live in `server/run/`. Enter `stop` in the server console to shut it down.
+
 ### 1. Configure the Plugin
 
 Apply the plugin and configure package generation in your `build.gradle.kts`:
