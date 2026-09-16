@@ -40,7 +40,7 @@ class VersionAgnosticSessionTest {
         assertEquals("Steve", joined.get().name());
 
         // Test 2: Server status notification
-        String statusJson = "{\"jsonrpc\":\"2.0\",\"method\":\"minecraft:notification/server/status\",\"params\":{\"started\":true,\"players\":[{\"id\":\"p-1\",\"name\":\"Steve\"}],\"version\":{\"name\":\"1.21.4\",\"protocol\":768}}}";
+        String statusJson = "{\"jsonrpc\":\"2.0\",\"method\":\"minecraft:notification/server/status\",\"params\":[{\"started\":true,\"players\":[{\"id\":\"p-1\",\"name\":\"Steve\"}],\"version\":{\"name\":\"1.21.4\",\"protocol\":768}}]}";
         processMessage.invoke(client, statusJson);
 
         assertNotNull(statusRef.get());

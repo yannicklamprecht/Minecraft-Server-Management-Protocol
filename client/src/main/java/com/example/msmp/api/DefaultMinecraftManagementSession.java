@@ -162,7 +162,7 @@ public final class DefaultMinecraftManagementSession implements MinecraftManagem
 
     @Override
     public void onServerStatus(Consumer<ServerStatusView> listener) {
-        client.registerNotification("minecraft:notification/server/status",
+        client.registerNotificationProperty("minecraft:notification/server/status", "status",
                 new TypeReference<Map<String, Object>>() {},
                 raw -> listener.accept(mapServerStatus(raw)));
     }

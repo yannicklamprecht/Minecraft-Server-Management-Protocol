@@ -11,7 +11,13 @@ import java.net.URI;
 public final class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        new Main();
+    }
+
+
+    public Main() throws InterruptedException {
+
         String url = System.getenv().getOrDefault("MINECRAFT_MANAGEMENT_URL", "ws://localhost:25585");
         String secret = System.getenv("MINECRAFT_MANAGEMENT_SECRET");
         if (secret == null || secret.isBlank()) {
@@ -38,6 +44,33 @@ public final class Main {
                     LOGGER.info("Online player: {}", player.name());
                 }
             }).join();
+
+            session.onPlayerLeft(player ->
+                    LOGGER.info("Player left: {} ({})", player.name(), player.id()));
+
+            session.onServerStatus(status ->
+                    LOGGER.info("Server status: started={}, players={}", status.started(), status.players().size()));
+
+            session.onServerStopping(() ->
+                    LOGGER.info("Server stopping"));
+            session.onServerSaved(() ->
+                    LOGGER.info("Server saved"));
+
+            session.onServerSaving(() ->
+                    LOGGER.info("Server saving"));
+
+            session.onServerActivity(() ->
+                    LOGGER.info("Server activity: {}", "Something happened"));
+
+            client.notificationsV1_0_0().onAllowlistAdded(player ->
+                    LOGGER.info("Allowlist added: {} ({})", player.name(), player.id()));
+            client.notificationsV1_0_0().onGamerulesUpdated(gamerules ->
+                    LOGGER.info("Gamerules updated: {}", gamerules));
+
+
+
+            Thread.currentThread().join();
         }
     }
+
 }

@@ -2,6 +2,7 @@ package com.example.msmp.transport;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,13 +148,19 @@ public final class MinecraftManagementClient implements WebSocket.Listener, Auto
     public <T> void registerNotificationProperty(String method, String propertyName, TypeReference<T> type, Consumer<T> listener) {
         JavaType targetType = mapper.getTypeFactory().constructType(type);
         notifications.put(method, new NotificationRegistration<>(
-                mapper.getTypeFactory().constructType(new TypeReference<Map<String, Object>>() {}),
+                mapper.getTypeFactory().constructType(JsonNode.class),
                 params -> {
-                    if (params instanceof Map<?, ?> map) {
-                        Object propValue = map.get(propertyName);
-                        T converted = mapper.convertValue(propValue, targetType);
-                        listener.accept(converted);
+                    JsonNode values = (JsonNode) params;
+                    JsonNode value;
+                    if (values != null && values.isArray() && values.size() == 1) {
+                        value = values.get(0);
+                    } else if (values != null && values.isObject() && values.has(propertyName)) {
+                        value = values.get(propertyName);
+                    } else {
+                        throw new IllegalArgumentException("Expected one positional parameter or named parameter '" + propertyName + "'");
                     }
+                    T converted = mapper.convertValue(value, targetType);
+                    listener.accept(converted);
                 }
         ));
     }
