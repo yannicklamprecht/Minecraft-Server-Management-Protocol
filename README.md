@@ -2,6 +2,10 @@
 
 A multi-module Java 21 / Gradle project for extracting Minecraft Server Management Protocol (MSMP) OpenRPC schemas from server JARs and generating typed Java client bindings.
 
+This README covers running the project locally. For integration guides - using the Gradle plugin
+to generate your own client, or adding the Spring Boot starter to an application - see
+[`docs/`](docs/README.md).
+
 ## Project Structure
 
 - **`gradle-plugin/`** — Gradle plugin (`com.github.yannicklamprecht.mc.management.schema-extractor`) that:
