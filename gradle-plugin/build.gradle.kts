@@ -17,7 +17,7 @@ java {
     }
 }
 
-val jacksonVersion = "3.1.5"
+val jacksonVersion = "3.2.2"
 
 dependencies {
     implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
