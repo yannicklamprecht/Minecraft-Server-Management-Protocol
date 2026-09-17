@@ -3,10 +3,10 @@ import java.util.Properties
 plugins {
     java
     application
-    id("com.example.msmp.schema-extractor")
+    id("com.github.yannicklamprecht.mc.management.schema-extractor")
 }
 
-group = "com.example.msmp"
+group = "com.github.yannicklamprecht.mc.management"
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -36,11 +36,11 @@ dependencies {
 
 
 minecraftManagement {
-    packageName.set("de.craftstuebchen.mc.management")
+    packageName.set("com.github.yannicklamprecht.mc.management")
 }
 
 application {
-    mainClass.set("com.example.msmp.Main")
+    mainClass.set("com.github.yannicklamprecht.mc.management.Main")
 }
 
 tasks.named<JavaExec>("run") {

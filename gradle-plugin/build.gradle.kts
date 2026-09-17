@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.example.msmp"
+group = "com.github.yannicklamprecht.mc.management"
 version = "0.1.0-SNAPSHOT"
 
 repositories {
@@ -31,8 +31,8 @@ dependencies {
 gradlePlugin {
     plugins {
         create("minecraftManagementSchemaExtractor") {
-            id = "com.example.msmp.schema-extractor"
-            implementationClass = "com.example.msmp.plugin.MinecraftManagementPlugin"
+            id = "com.github.yannicklamprecht.mc.management.schema-extractor"
+            implementationClass = "com.github.yannicklamprecht.mc.management.plugin.MinecraftManagementPlugin"
             displayName = "Minecraft Management Protocol Schema Extractor"
             description = "Downloads Minecraft server JARs, executes data generation, and extracts OpenRPC schemas for the Minecraft Server Management Protocol."
         }

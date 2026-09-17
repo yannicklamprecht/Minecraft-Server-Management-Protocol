@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.example.msmp" level="DEBUG"/>
+    <logger name="com.github.yannicklamprecht.mc.management" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
