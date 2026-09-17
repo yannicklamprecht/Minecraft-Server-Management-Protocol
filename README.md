@@ -211,11 +211,18 @@ Schemas are cached in `.gradle/caches/minecraft-management-gradle-plugin/protoco
 
 ### 3. Generate Typed Sources
 
-Build the project to automatically generate typed Java code from schemas:
+Building the project generates typed Java code from schemas automatically only on a first run,
+i.e. when `src/generated/java/` has no generated sources yet:
 
 ```bash
 ./gradlew build
 ```
+
+Once sources exist (including checked-in ones), later `./gradlew build` runs compile them as-is
+without re-downloading/re-extracting/re-generating. Run
+`./gradlew generateMinecraftManagementSources` explicitly, or pass
+`-PminecraftManagement.autoGenerate=true`, to force regeneration - see
+[docs/gradle-plugin/tasks.md](docs/gradle-plugin/tasks.md#auto-generation-on-build) for details.
 
 Generated sources are placed in `src/generated/java/` and automatically included in compilation.
 
@@ -242,7 +249,7 @@ Generated classes include:
 | Task | Aliases | Description |
 |------|---------|-------------|
 | `extractMinecraftManagementSchemas` | `extractProtocolSchemas` | Download servers and extract schemas |
-| `generateMinecraftManagementSources` | `generateMsmpSources`, `generateProtocolSources` | Generate typed Java from schemas (runs automatically during `build`) |
+| `generateMinecraftManagementSources` | `generateMsmpSources`, `generateProtocolSources` | Generate typed Java from schemas (runs automatically during `build` only when no generated sources exist yet; see [Auto-generation on `build`](docs/gradle-plugin/tasks.md#auto-generation-on-build)) |
 | `cleanMinecraftManagementCache` | `cleanCache` | Delete cached server JARs and extracted schemas |
 | `cleanMinecraftManagementSources` | `cleanGeneratedSources` | Delete generated Java sources |
 

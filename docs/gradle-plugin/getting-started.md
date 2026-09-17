@@ -77,11 +77,14 @@ if it's missing.
 ./gradlew build
 ```
 
-This downloads the configured Minecraft server JARs (defaulting to every release from
-`1.21.9` onward - see [configuration.md](configuration.md) to narrow that down), extracts their
-MSMP schemas, generates typed Java sources under `src/generated/java/`, and compiles them as part
-of the normal `build`. See [tasks.md](tasks.md) if you want to run just the extraction or
-generation step on its own.
+On a first run (no generated sources yet under `generatedSourcesDir`), `build` automatically
+downloads the configured Minecraft server JARs (defaulting to every release from `1.21.9` onward -
+see [configuration.md](configuration.md) to narrow that down), extracts their MSMP schemas,
+generates typed Java sources under `src/generated/java/`, and compiles them. Once sources exist,
+subsequent `build` runs compile them as-is and won't re-download/re-generate on their own - run
+`./gradlew generateMinecraftManagementSources` explicitly (or pass
+`-PminecraftManagement.autoGenerate=true`) to regenerate. See [tasks.md](tasks.md#auto-generation-on-build)
+for the full rules and how to override them.
 
 Everything downloaded/extracted is cached under
 `.gradle/caches/minecraft-management-gradle-plugin/` (the plugin adds this to `.gitignore`

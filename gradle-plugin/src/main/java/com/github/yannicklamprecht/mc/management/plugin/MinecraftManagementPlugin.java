@@ -11,6 +11,12 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 
 public class MinecraftManagementPlugin implements Plugin<Project> {
     public static final String EXTENSION_NAME = "minecraftManagement";
@@ -20,6 +26,14 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
     public static final String CLEAN_CACHE_ALIAS_TASK_NAME = "cleanCache";
     public static final String CLEAN_SOURCES_TASK_NAME = "cleanMinecraftManagementSources";
     public static final String CLEAN_SOURCES_ALIAS_TASK_NAME = "cleanGeneratedSources";
+
+    /**
+     * Project property that forces (when {@code true}) or suppresses (when {@code false}) wiring
+     * {@link #GENERATE_TASK_NAME} into {@code compileJava}, overriding the default of only doing
+     * so when {@code generatedSourcesDir} has no generated {@code .java} files yet. Pass with
+     * {@code -PminecraftManagement.autoGenerate=true} (or {@code false}).
+     */
+    public static final String AUTO_GENERATE_PROPERTY = "minecraftManagement.autoGenerate";
 
     @Override
     public void apply(Project project) {
@@ -122,9 +136,39 @@ public class MinecraftManagementPlugin implements Plugin<Project> {
             SourceSet mainSourceSet = javaExtension.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
             mainSourceSet.getJava().srcDir(extension.getGeneratedSourcesDir());
 
-            project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task -> {
-                task.dependsOn(generateTask);
-            });
+            project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task ->
+                    task.dependsOn(project.provider(() ->
+                            shouldAutoGenerate(project, extension) ? List.of(generateTask) : Collections.emptyList()
+                    ))
+            );
         });
+    }
+
+    /**
+     * Decides whether {@code compileJava} (and therefore {@code build}) should trigger schema
+     * extraction/generation - which downloads Minecraft server JARs and runs their data generators -
+     * automatically. Controlled by {@link #AUTO_GENERATE_PROPERTY} when set; otherwise defaults to
+     * only bootstrapping when {@code generatedSourcesDir} has no generated {@code .java} files yet,
+     * so a normal build never re-downloads/re-runs generation against sources already on disk
+     * (e.g. checked into version control).
+     */
+    private static boolean shouldAutoGenerate(Project project, MinecraftManagementExtension extension) {
+        Object override = project.findProperty(AUTO_GENERATE_PROPERTY);
+        if (override != null) {
+            return Boolean.parseBoolean(override.toString());
+        }
+        return !hasGeneratedSources(extension.getGeneratedSourcesDir().get().getAsFile());
+    }
+
+    private static boolean hasGeneratedSources(File generatedSourcesDir) {
+        if (!generatedSourcesDir.exists()) {
+            return false;
+        }
+        Path root = generatedSourcesDir.toPath();
+        try (var stream = Files.walk(root)) {
+            return stream.anyMatch(path -> path.toString().endsWith(".java"));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to inspect generated sources directory: " + root, e);
+        }
     }
 }
