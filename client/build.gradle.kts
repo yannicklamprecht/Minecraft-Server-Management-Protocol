@@ -19,9 +19,9 @@ java {
     }
 }
 
-val jacksonVersion = "3.1.5"
-val slf4jVersion = "2.0.17"
-val logbackVersion = "1.5.18"
+val jacksonVersion = "3.2.2"
+val slf4jVersion = "2.0.19"
+val logbackVersion = "1.6.3"
 val junitVersion = "5.11.4"
 
 dependencies {
