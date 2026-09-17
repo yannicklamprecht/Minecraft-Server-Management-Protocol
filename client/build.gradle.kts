@@ -19,13 +19,13 @@ java {
     }
 }
 
-val jacksonVersion = "2.20.0"
+val jacksonVersion = "3.1.5"
 val slf4jVersion = "2.0.17"
 val logbackVersion = "1.5.18"
 val junitVersion = "5.11.4"
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
 

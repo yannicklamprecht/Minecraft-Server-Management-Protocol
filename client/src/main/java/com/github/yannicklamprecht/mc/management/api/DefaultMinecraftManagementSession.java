@@ -1,7 +1,7 @@
 package com.github.yannicklamprecht.mc.management.api;
 
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 import java.util.List;
 import java.math.BigDecimal;

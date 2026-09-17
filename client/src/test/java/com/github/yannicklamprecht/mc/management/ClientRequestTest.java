@@ -1,8 +1,8 @@
 package com.github.yannicklamprecht.mc.management;
 
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
@@ -29,10 +29,10 @@ class ClientRequestTest {
 
             assertEquals(7, requests.size());
             for (JsonNode request : requests) {
-                assertEquals("2.0", request.path("jsonrpc").asText());
+                assertEquals("2.0", request.path("jsonrpc").asString());
                 assertFalse(request.has("params"), request.toString());
             }
-            assertEquals("minecraft:server/status", requests.getFirst().path("method").asText());
+            assertEquals("minecraft:server/status", requests.getFirst().path("method").asString());
         }
     }
 
@@ -42,7 +42,7 @@ class ClientRequestTest {
         try (var client = recordingClient(requests)) {
             client.session().save(true);
             assertEquals(1, requests.size());
-            assertEquals("minecraft:server/save", requests.getFirst().path("method").asText());
+            assertEquals("minecraft:server/save", requests.getFirst().path("method").asString());
             assertTrue(requests.getFirst().path("params").path("flush").asBoolean());
         }
     }
@@ -58,7 +58,7 @@ class ClientRequestTest {
             assertEquals(1, requests.size());
             JsonNode message = requests.getFirst().path("params").path("message");
             assertFalse(message.has("receivingPlayers"), message.toString());
-            assertEquals("hello", message.path("message").path("literal").asText());
+            assertEquals("hello", message.path("message").path("literal").asString());
         }
     }
 

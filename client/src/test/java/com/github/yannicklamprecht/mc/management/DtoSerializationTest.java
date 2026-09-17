@@ -1,7 +1,7 @@
 package com.github.yannicklamprecht.mc.management;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.github.yannicklamprecht.mc.management.v3_1_0.dto.*;
 import org.junit.jupiter.api.Test;
 

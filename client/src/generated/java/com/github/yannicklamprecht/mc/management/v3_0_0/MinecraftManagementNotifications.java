@@ -1,6 +1,5 @@
 package com.github.yannicklamprecht.mc.management.v3_0_0;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
 import com.github.yannicklamprecht.mc.management.v3_0_0.dto.IpBan;
 import com.github.yannicklamprecht.mc.management.v3_0_0.dto.Operator;
@@ -11,6 +10,7 @@ import com.github.yannicklamprecht.mc.management.v3_0_0.dto.UserBan;
 import java.lang.Runnable;
 import java.lang.String;
 import java.util.function.Consumer;
+import tools.jackson.core.type.TypeReference;
 
 /**
  * Typed notification listeners for Minecraft Management Protocol v3.0.0.

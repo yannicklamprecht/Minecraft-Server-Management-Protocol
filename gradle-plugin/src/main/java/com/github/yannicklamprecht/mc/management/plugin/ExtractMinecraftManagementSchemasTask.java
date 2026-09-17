@@ -5,7 +5,7 @@ import com.github.yannicklamprecht.mc.management.plugin.internal.JavaRuntimeLoca
 import com.github.yannicklamprecht.mc.management.plugin.internal.MojangManifestService;
 import com.github.yannicklamprecht.mc.management.plugin.internal.ServerDataGenerator;
 import com.github.yannicklamprecht.mc.management.plugin.internal.ServerJarDownloader;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;

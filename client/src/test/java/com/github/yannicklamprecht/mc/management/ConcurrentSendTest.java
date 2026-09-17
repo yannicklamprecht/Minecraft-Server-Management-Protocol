@@ -1,7 +1,7 @@
 package com.github.yannicklamprecht.mc.management;
 
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;

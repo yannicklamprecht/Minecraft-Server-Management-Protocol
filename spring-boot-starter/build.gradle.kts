@@ -16,7 +16,7 @@ java {
 }
 
 val springBootVersion = "4.1.1"
-val jacksonVersion = "2.20.0"
+val jacksonVersion = "3.1.5"
 val slf4jVersion = "2.0.17"
 
 dependencies {
@@ -25,7 +25,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))

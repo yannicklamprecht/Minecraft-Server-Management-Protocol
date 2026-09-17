@@ -1,6 +1,5 @@
 package com.github.yannicklamprecht.mc.management.v3_0_0;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
 import com.github.yannicklamprecht.mc.management.v3_0_0.dto.Difficulty;
 import com.github.yannicklamprecht.mc.management.v3_0_0.dto.GameType;
@@ -20,6 +19,7 @@ import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import tools.jackson.core.type.TypeReference;
 
 /**
  * Typed JSON-RPC API facade for Minecraft Management Protocol v3.0.0.

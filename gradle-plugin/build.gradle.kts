@@ -17,10 +17,10 @@ java {
     }
 }
 
-val jacksonVersion = "2.20.0"
+val jacksonVersion = "3.1.5"
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.palantir.javapoet:javapoet:0.6.0")
 
     testImplementation(platform("org.junit:junit-bom:5.11.4"))

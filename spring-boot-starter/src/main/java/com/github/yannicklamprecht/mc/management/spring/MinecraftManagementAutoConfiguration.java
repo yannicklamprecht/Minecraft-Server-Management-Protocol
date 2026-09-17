@@ -5,7 +5,7 @@ import com.github.yannicklamprecht.mc.management.spring.activity.ActivityRecordi
 import com.github.yannicklamprecht.mc.management.spring.activity.ActivityRepository;
 import com.github.yannicklamprecht.mc.management.spring.activity.InMemoryActivityRepository;
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

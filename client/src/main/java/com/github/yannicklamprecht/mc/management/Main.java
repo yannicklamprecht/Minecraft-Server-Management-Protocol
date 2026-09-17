@@ -2,7 +2,7 @@ package com.github.yannicklamprecht.mc.management;
 
 import com.github.yannicklamprecht.mc.management.api.MinecraftManagementSession;
 import com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
