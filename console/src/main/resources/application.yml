@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: msmp-console
+  mvc:
+    async:
+      request-timeout: -1
+
+server:
+  port: 8080
+
+minecraft:
+  management:
+    servers:
+      skyblock:
+        # Matches the local Paper server started by ./gradlew :server:runServer (port 25585).
+        # protocol-version is intentionally unset - auto-detected on connect.
+        url: ${SKYBLOCK_MANAGEMENT_URL:ws://localhost:25585}
+        secret: ${SKYBLOCK_MANAGEMENT_SECRET:LocalDevelopmentManagementSecret12345678}
+      creative:
+        # Matches the local Paper server started by ./gradlew :server:runServer (port 25585).
+        # protocol-version is intentionally unset - auto-detected on connect.
+        url: ${CREATIVE_MANAGEMENT_URL:ws://localhost:25587}
+        secret: ${CREATIVE_MANAGEMENT_SECRET:LocalDevelopmentManagementSecret12345678}
+      lobby:
+        # Matches the local Paper server started by ./gradlew :server:runServer (port 25585).
+        # protocol-version is intentionally unset - auto-detected on connect.
+        url: ${LOBBY_MANAGEMENT_URL:ws://localhost:25588}
+        secret: ${LOBBY_MANAGEMENT_SECRET:LocalDevelopmentManagementSecret12345678}
+
+console:
+  ui:
+    # Set to true to hide offline servers from the dashboard's sidebar entirely, instead of
+    # listing every configured server regardless of connection state (the default).
+    hide-offline-servers: false
+    # Whether kicking/banning a player, or making/unmaking one an operator, also privately
+    # messages every other online operator about it (excluding whoever the action was on):
+    #   NEVER         - never notify, and never show the "Notify operators" checkbox.
+    #   ALWAYS        - always notify; the checkbox isn't shown since there's nothing to choose.
+    #   DEFAULT_TRUE  - show the checkbox, checked by default (the default mode).
+    #   DEFAULT_FALSE - show the checkbox, unchecked by default.
+    operator-notifications: DEFAULT_TRUE
+
+gg:
+  jte:
+    development-mode: true

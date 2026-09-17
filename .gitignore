@@ -5,4 +5,5 @@ out/
 *.iml
 
 logs/
-server/run/
+server/run*/
+console/jte-classes/

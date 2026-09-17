@@ -1,0 +1,749 @@
+:root {
+    color-scheme: dark;
+
+    /* Deepslate/stone surfaces, quartz text - Minecraft's own material palette,
+       used as a genuine dark UI rather than a decorative theme. */
+    --bg: #16181c;
+    --panel: #1e2126;
+    --panel-alt: #262a30;
+    --line: #33373d;
+    --ink: #e9e7e2;
+    --muted: #8d9198;
+
+    /* Semantic accents only - never decoration. Each one names a real state,
+       borrowed from the materials a server admin already associates with them. */
+    --emerald: #4f9d63;
+    --emerald-ink: #eafcef;
+    --redstone: #c2453c;
+    --redstone-ink: #fdeceb;
+    --gold: #cf9f3f;
+    --gold-ink: #fbf1dc;
+    --lapis: #4a90c4;
+    --lapis-ink: #eaf4fb;
+
+    --font-display: "Chakra Petch", "Avenir Next", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    font-family: var(--font-mono);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* The `hidden` attribute must always win, even over an element's own `display: flex`/`grid` rule
+   set by ID (higher specificity than the UA stylesheet's `[hidden] { display: none }`) - without
+   this, toggling `.hidden` in JS on an element styled that way (e.g. #status-strip) silently does
+   nothing, since the ID rule's specificity beats the attribute selector's. */
+[hidden] {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin: 0;
+}
+
+button, input {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--lapis);
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    background: var(--lapis);
+    color: var(--lapis-ink);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: top 0.15s ease;
+    z-index: 10;
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+}
+
+.topbar h1 {
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+}
+
+.badge[data-state="connected"] {
+    color: var(--emerald);
+    border-color: var(--emerald);
+}
+
+.badge[data-state="disconnected"] {
+    color: var(--redstone);
+    border-color: var(--redstone);
+}
+
+/* ---------- Empty-state notice ---------- */
+
+.notice {
+    margin: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--line);
+    color: var(--muted);
+}
+
+.notice code {
+    color: var(--ink);
+    background: var(--panel);
+    padding: 0.1rem 0.3rem;
+}
+
+/* ---------- Shell layout ---------- */
+
+#app-shell {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 320px;
+    min-height: calc(100vh - 54px);
+}
+
+#server-rail,
+#console-rail {
+    background: var(--panel);
+    padding: 1rem;
+}
+
+#server-rail {
+    border-right: 1px solid var(--line);
+}
+
+#console-rail {
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#server-rail h2,
+#console-rail h2 {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+}
+
+#main-column {
+    padding: 1.25rem 1.5rem 2rem;
+    min-width: 0;
+}
+
+#main-column > section {
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--line);
+}
+
+#main-column > section:first-child {
+    padding-top: 0;
+}
+
+#main-column > section:last-child {
+    border-bottom: none;
+}
+
+/* #offline-panel is always the structural first child so it gets the rule above's padding-top: 0
+   even while hidden; #status-strip needs the same treatment for when it's the visible one instead. */
+#status-strip {
+    padding-top: 0;
+}
+
+#main-column h2 {
+    font-size: 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
+/* ---------- Offline troubleshooting panel ---------- */
+
+#offline-panel h2 {
+    color: var(--redstone);
+}
+
+#offline-panel p {
+    color: var(--muted);
+    margin-bottom: 0.85rem;
+}
+
+#offline-panel ol {
+    margin: 0 0 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+#offline-panel code {
+    color: var(--ink);
+    background: var(--panel-alt);
+    padding: 0.1rem 0.3rem;
+}
+
+/* ---------- Server rail ---------- */
+
+#server-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.server-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    padding: 0.5rem 0.6rem;
+    cursor: pointer;
+    text-align: left;
+}
+
+.server-item:hover {
+    border-color: var(--line);
+    color: var(--ink);
+}
+
+.server-item[aria-current="true"] {
+    background: var(--panel-alt);
+    border-color: var(--lapis);
+    color: var(--ink);
+}
+
+#server-list li.empty {
+    color: var(--muted);
+    padding: 0.5rem 0.6rem;
+}
+
+.server-item .server-id {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Shows the Minecraft version (or "offline"); hover reveals the MSMP protocol version via its
+   title attribute. Colored like .badge above: green/bordered when online, red/bordered when not. */
+.server-item .server-version {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.server-item .server-version[data-state="online"] {
+    color: var(--emerald);
+    border-color: var(--emerald);
+}
+
+.server-item .server-version[data-state="offline"] {
+    color: var(--redstone);
+    border-color: var(--redstone);
+}
+
+/* ---------- Status strip ---------- */
+
+#status-strip {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+/* ---------- Forms & buttons ---------- */
+
+.inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+#control-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.inline-form input[type="text"],
+.inline-form input[type="number"] {
+    flex: 1;
+    min-width: 8rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.5rem 0.7rem;
+}
+
+.input-narrow {
+    flex: 0 0 4.5rem !important;
+    min-width: 0 !important;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.btn {
+    background: var(--lapis);
+    color: var(--lapis-ink);
+    border: 1px solid var(--lapis);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn:hover {
+    filter: brightness(1.1);
+}
+
+.btn-quiet {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+}
+
+.btn-quiet:hover {
+    border-color: var(--ink);
+    filter: none;
+}
+
+.btn-danger {
+    background: var(--redstone);
+    border-color: var(--redstone);
+    color: var(--redstone-ink);
+}
+
+/* ---------- Rosters (players / allowlist / operators / bans) ---------- */
+
+.roster {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+}
+
+.roster li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.roster li:last-child {
+    border-bottom: none;
+}
+
+.roster li.empty {
+    color: var(--muted);
+    font-style: normal;
+    justify-content: flex-start;
+}
+
+/* Scoped to a DIRECT li>button (the allowlist/operators/bans "remove" links) rather than any
+   .roster button, so it doesn't also catch the .btn-classed buttons nested inside a player row's
+   expandable actions panel further below. */
+.roster li > button {
+    background: transparent;
+    border: 1px solid var(--redstone);
+    color: var(--redstone);
+    padding: 0.2rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.roster li > button:disabled {
+    border-color: var(--gold);
+    color: var(--gold);
+    cursor: default;
+}
+
+.roster li > button:hover:not(:disabled) {
+    background: var(--redstone);
+    color: var(--redstone-ink);
+}
+
+/* ---------- Player row actions (op/kick/ban/message) ---------- */
+
+/* A player row is just a <details> filling the <li>; padding/flex move onto <summary> instead of
+   the <li> itself, since the expandable panel needs to sit full-width below the summary line. */
+#players-list li.player-row {
+    display: block;
+    padding: 0;
+}
+
+.player-actions > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.player-actions > summary::-webkit-details-marker {
+    display: none;
+}
+
+.player-actions > summary .player-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A single pseudo-element carrying both the label and the disclosure arrow, so the summary has
+   exactly two flex children (name, this) and justify-content: space-between pushes it flush right -
+   with three children (name + a separate "Actions" span + this as a third) it landed in the middle
+   instead. Swapping the copy on [open] avoids also needing a separate rotate-the-arrow transition. */
+.player-actions > summary::after {
+    content: 'Actions ▾';
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.player-actions[open] > summary::after {
+    content: 'Close ▴';
+}
+
+.player-actions > summary:hover {
+    background: var(--panel-alt);
+}
+
+.player-actions > summary:hover::after {
+    color: var(--ink);
+}
+
+.player-actions[open] {
+    background: var(--panel-alt);
+}
+
+.player-actions-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0.75rem 0.75rem;
+}
+
+.player-actions-panel .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.player-actions-panel .action-row input[type="text"] {
+    flex: 1;
+    min-width: 8rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+.player-actions-panel .btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* ---------- Tabs ---------- */
+
+.tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    padding: 0.5rem 0.2rem;
+    margin-right: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab[aria-selected="true"] {
+    color: var(--ink);
+    border-bottom-color: var(--lapis);
+}
+
+/* ---------- Console / activity log ---------- */
+
+#activity-feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    font-size: 0.78rem;
+}
+
+#activity-feed li {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    word-break: break-word;
+}
+
+#activity-feed li:last-child {
+    border-bottom: none;
+}
+
+#activity-feed .log-time {
+    color: var(--lapis);
+    margin-right: 0.4rem;
+}
+
+#activity-feed li.log-error .log-time {
+    color: var(--redstone);
+}
+
+#activity-feed li.log-error {
+    color: var(--redstone-ink);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1080px) {
+    #app-shell {
+        grid-template-columns: 180px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+    }
+
+    #console-rail {
+        grid-column: 1 / -1;
+        border-left: none;
+        border-top: 1px solid var(--line);
+        max-height: 260px;
+    }
+}
+
+@media (max-width: 720px) {
+    #app-shell {
+        display: block;
+    }
+
+    #server-rail {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+    }
+
+    #server-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .server-item {
+        flex-shrink: 0;
+    }
+
+    #main-column {
+        padding: 1.25rem 1rem 1.5rem;
+    }
+
+    #status-strip {
+        gap: 1.25rem;
+    }
+
+    #console-rail {
+        max-height: 200px;
+    }
+
+    /* The offline panel's troubleshooting list otherwise indents under the narrower content
+       column enough to crowd against the edge of the screen. */
+    #offline-panel ol {
+        margin-left: 1rem;
+    }
+}
+
+/* True phone widths: stack each form/action row into one control per line instead of letting
+   several buttons and an input squeeze into a wrapped row - each one stays full width and easy
+   to hit with a thumb. .input-narrow (the operator permission-level field) and .checkbox
+   (its own already-adequate label) are deliberately left at their natural size, not stretched. */
+@media (max-width: 480px) {
+    .inline-form,
+    .player-actions-panel .action-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inline-form input[type="text"]:not(.input-narrow),
+    .inline-form .btn,
+    .player-actions-panel .action-row input[type="text"],
+    .player-actions-panel .action-row .btn {
+        width: 100%;
+    }
+
+    .inline-form .checkbox,
+    .inline-form .input-narrow {
+        align-self: flex-start;
+    }
+
+    .section-header {
+        align-items: flex-start;
+    }
+}
+
+/* Anything driven by touch rather than a mouse/trackpad - phones, tablets, touch laptops,
+   regardless of screen size (a tablet in landscape can be wider than the breakpoints above but
+   is no less a touch device). Hover states elsewhere still work fine as a bonus for hybrid
+   devices; this only adds a comfortable minimum hit target, per the ~44px guidance from both
+   Apple's HIG and Google's Material Design, everywhere a finger - not a precise mouse pointer -
+   needs to land. */
+@media (pointer: coarse) {
+    .btn,
+    .roster li > button,
+    .tab,
+    .server-item,
+    .player-actions > summary {
+        min-height: 44px;
+    }
+
+    .btn,
+    .roster li > button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .player-actions-panel .btn {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .roster li > button {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.8rem;
+    }
+
+    .tab {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.7rem 0.6rem;
+    }
+
+    .inline-form input[type="text"],
+    .inline-form input[type="number"],
+    .player-actions-panel .action-row input[type="text"] {
+        min-height: 44px;
+    }
+
+    /* The native checkbox box itself stays small on every platform regardless of CSS sizing, but
+       the label wrapping it is the real tap target - give it room to grow instead of clipping to
+       the text's own line height. */
+    .checkbox {
+        min-height: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skip-link {
+        transition: none;
+    }
+}
