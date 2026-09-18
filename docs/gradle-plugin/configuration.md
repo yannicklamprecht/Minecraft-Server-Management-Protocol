@@ -25,6 +25,11 @@ minecraftManagement {
 | `generatedSourcesDir` | `DirectoryProperty` | `src/generated/java` (relative to the project) | Where generated `.java` files are written. Automatically added to the `main` source set's `java` source directories when the `java` plugin is applied. |
 | `clientClassName` | `Property<String>` | `com.github.yannicklamprecht.mc.management.transport.MinecraftManagementClient` | Fully-qualified name of the hand-written client class generated API facades take as a constructor parameter. Only needs changing if you've moved/renamed that class relative to this project's own copy - see [generated-code.md](generated-code.md). |
 
+Additionally, the `minecraftManagement.autoGenerate` **project property** (not an extension
+property - pass it with `-P`, it isn't set in the `minecraftManagement { ... }` block) controls
+whether `build` auto-triggers extraction/generation; see
+[Auto-generation on `build`](tasks.md#auto-generation-on-build) in the tasks reference.
+
 ## Caching and `.gitignore`
 
 The extraction task ensures `outputDir` has an entry in the project's `.gitignore` the first time
