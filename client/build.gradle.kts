@@ -22,7 +22,7 @@ java {
 val jacksonVersion = "3.2.2"
 val slf4jVersion = "2.0.19"
 val logbackVersion = "1.6.3"
-val junitVersion = "5.11.4"
+val junitVersion = "6.1.3"
 
 dependencies {
     implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
