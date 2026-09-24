@@ -21,7 +21,7 @@ val jacksonVersion = "3.2.2"
 
 dependencies {
     implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.palantir.javapoet:javapoet:0.19.0")
+    implementation("com.palantir.javapoet:javapoet:0.20.0")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
