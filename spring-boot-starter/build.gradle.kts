@@ -16,8 +16,8 @@ java {
 }
 
 val springBootVersion = "4.1.1"
-val jacksonVersion = "3.2.2"
-val slf4jVersion = "2.0.19"
+val jacksonVersion = "3.2.3"
+val slf4jVersion = "2.0.20"
 
 dependencies {
     api(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
