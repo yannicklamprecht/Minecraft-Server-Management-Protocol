@@ -2,7 +2,7 @@ import java.util.Properties
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("gg.jte.gradle") version "3.2.4"
 }
 
@@ -19,7 +19,7 @@ java {
     }
 }
 
-val springBootVersion = "4.1.1"
+val springBootVersion = "4.1.2"
 val jteVersion = "3.2.4"
 
 dependencies {
