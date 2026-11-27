@@ -2,8 +2,8 @@ import java.util.Properties
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.1"
-    id("gg.jte.gradle") version "3.2.4"
+    id("org.springframework.boot") version "4.1.2"
+    id("gg.jte.gradle") version "3.2.5"
 }
 
 group = "com.github.yannicklamprecht.mc.management"
@@ -19,8 +19,8 @@ java {
     }
 }
 
-val springBootVersion = "4.1.1"
-val jteVersion = "3.2.4"
+val springBootVersion = "4.1.2"
+val jteVersion = "3.2.5"
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
