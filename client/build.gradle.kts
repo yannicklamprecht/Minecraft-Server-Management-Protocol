@@ -37,6 +37,7 @@ dependencies {
 
 minecraftManagement {
     packageName.set("com.github.yannicklamprecht.mc.management")
+    onlyReleases.set(false)
 }
 
 application {
